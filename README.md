@@ -58,6 +58,8 @@ Every LLM call is logged: input, output, latency, tokens, cost.
 
 **Human in the loop.** v1: every ticket reviewed by a human before action. The system surfaces priority; humans decide. v2: confidence-gated automation — high-confidence, low-stakes tickets (e.g. routine maintenance scheduling) can route automatically; ambiguous or high-severity tickets always escalate to human review.
 
+Build 1 incorporates German heating-domain knowledge in two places. (1) Scoring LLM prompt: heating-season corridor (Oct 1 – Apr 30 per case law), outdoor-temperature thresholds for heating necessity (11–17°C depending on building energy class), and vulnerable-occupant overrides. (2) Tier-multiplier code: deterministic season-multiplier (1.0 in season, 0.7 out of season). The split mirrors a core principle — context-dependent heuristics in the LLM, time-based deterministic rules in code.
+
 ---
 
 ## Cost, latency, governance
