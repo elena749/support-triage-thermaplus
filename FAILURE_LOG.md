@@ -23,3 +23,16 @@
 **Fix or mitigation:** Removed the verbosity option entirely. Under strict JSON schema output, verbosity has no effect anyway — the model can only emit schema-defined fields, no thinking-out-loud is possible. The option was redundant.
 
 **Generalizes to:** Provider parameters are not uniform across models within the same provider's lineup. Always verify supported values against the specific model in use, not against a generic API documentation. The cheapest verification: send the request and read the rejection. Bad Request errors with explicit supported-values lists are gold — they teach you the actual constraint.
+
+### 2026-05-04 — Code node failed: "Unknown severity value: undefined"
+
+**Phase:** BUILD  
+**What I tried:** Tier multiplier code node reading `$input.item.json.severity` to look up severity score and calculate final_priority.
+
+**What broke:** Node threw "Unknown severity value: undefined" on every test run. Pipeline stopped before tier multiplication.
+
+**Root cause:** OpenAI Responses API (enabled via `Use Responses API` toggle in n8n) returns a wrapped envelope: `{ id, object, output: [{ content: [{ text: { severity, ... } }] }] }`. The actual schema fields live at `output[0].content[0].text.*`, not at the root. Same payload shape, different access path than the legacy Chat Completions API.
+
+**Fix or mitigation:** Updated code node to read `raw.output[0].content[0].text` instead of `raw`. The wrapper is provider-API-specific and would need to be adjusted if migrating between Responses API and Chat Completions API.
+
+**Generalizes to:** API response shapes are part of the integration contract — even within a single provider, different API endpoints produce different envelopes around the same payload. Schema validation enforces structure inside the payload; it does not normalize the wrapper around it. Always inspect the raw response shape before writing access code. The defensive validation (`throw new Error`) caught the issue cleanly instead of silently producing NaN downstream — that's the value of fail-fast.
