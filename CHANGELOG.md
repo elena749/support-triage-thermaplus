@@ -9,3 +9,6 @@
 
 - Scoring LLM node added (gpt-4.1-mini, temperature 0, JSON Schema-enforced).
 - End-to-end test of two-LLM pipeline successful: Müller emergency ticket (heating off, two children) classified as severity=critical, confidence=0.95, with German reasoning string.
+  
+- Tier multiplier code node added. Combines scoring output with original webhook payload, calculates final_priority = severity_score × tier_weight using deterministic JavaScript logic.
+- First complete pipeline run: Müller emergency ticket (Tier C) → severity critical → final_priority 5.6.
