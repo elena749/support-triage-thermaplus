@@ -128,7 +128,38 @@ What a DPO would object to in v1: full ticket content in logs, US-region LLM pro
 
 ## Results & next steps
 
-**v1 vs v2 evaluation.** Held-out test set of 25 tickets graded on severity accuracy. Results reported here after eval phase.
+**v1 vs v2 evaluation.** Held-out test set of 30 tickets graded on severity accuracy. Results reported here after eval phase.
+
+### v2 — After Prompt Iteration (5 May 2026)
+
+Same 30-ticket held-out set, scored against the same ground truth.
+
+**Changes from v1:**
+- Added an "Authority Hierarchy" section to the scoring prompt: objective state of the heating system outranks customer self-assessment as a severity signal.
+- Sharpened the low/medium boundary: medium now covers either (a) functionally degraded systems or (b) routine inquiries with elevated escalation risk (frustration, billing disputes, overdue maintenance, B2B with multiple parties affected) — or both.
+- Added three in-prompt few-shot examples derived directly from v1 failure cases (calmly_critical, angry_no_emergency, noise_diagnosis).
+
+**Severity Accuracy: 80.0% (24/30) — up from 76.7% in v1.**
+
+Confusion Matrix (expected → predicted):
+
+|              | low | medium | high | critical |
+|--------------|-----|--------|------|----------|
+| **low**      | 8   | 1      | 0    | 0        |
+| **medium**   | 3   | 5      | 0    | 0        |
+| **high**     | 0   | 2      | 7    | 0        |
+| **critical** | 0   | 0      | 0    | 4        |
+
+**Honest reading:**
+
+v2 fixed exactly one of seven v1 failures — TH-04559 (angry customer with no functional emergency, now correctly classified as medium). The other six failures persist, with reasoning patterns nearly identical to v1.
+
+Worth noting: for at least one of the persistent failures (TH-04535, calmly_critical), an isolated single-ticket curl test returned the correct `high` classification, while the same ticket in the batch eval run produced `medium`. Same prompt, same temperature=0, different output. This is a useful reminder that LLM outputs are not byte-deterministic even at T=0 — OpenAI does not guarantee reproducibility at the API level.
+
+**What this likely indicates:**
+
+- **Prompt-level mitigations have diminishing returns** for failure patterns where the model carries a strong learned prior (e.g. "customer says not urgent" → de-escalate). Adding rules and examples nudges the output distribution, but does not switch a deterministic gate.
+- **n=1 evaluation cannot distinguish weak mitigation from inherent model variance.** Credible before/after comparisons require multi-run evaluation (3-5 runs per version, mean ± standard deviation), not single-batch point estimates. A +3.3pp gain at n=1 may well be noise.
 
 **Latency Trade-off v1 → v2:**
 v2 fügt Authority-Hierarchy-Regeln und drei Few-Shot-Beispiele zum 
