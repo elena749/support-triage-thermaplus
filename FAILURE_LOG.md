@@ -36,3 +36,31 @@
 **Fix or mitigation:** Updated code node to read `raw.output[0].content[0].text` instead of `raw`. The wrapper is provider-API-specific and would need to be adjusted if migrating between Responses API and Chat Completions API.
 
 **Generalizes to:** API response shapes are part of the integration contract — even within a single provider, different API endpoints produce different envelopes around the same payload. Schema validation enforces structure inside the payload; it does not normalize the wrapper around it. Always inspect the raw response shape before writing access code. The defensive validation (`throw new Error`) caught the issue cleanly instead of silently producing NaN downstream — that's the value of fail-fast.
+
+## 2026-05-05 — v1 Eval: systematische Unterschätzung durch 
+Kunden-Selbsteinschätzung
+
+**Was ich tat:** Eval-Run gegen 30 Ground-Truth-Tickets, Severity-Accuracy 
+und Confusion Matrix berechnet.
+
+**Was brach:** 7/30 Tickets falsch klassifiziert, 6 davon eine Stufe zu 
+mild. Auffälligstes Beispiel: TH-04535 — Heizung ausgefallen, aber Kunde 
+sagt "nicht dringend". Pipeline rated medium, Ground Truth high. 
+Reasoning des LLM: "Kunde gibt an, dass es nicht dringend ist."
+
+**Root cause:** Scoring-Prompt enthielt keine explizite Regel zur 
+Gewichtung von Kunden-Selbsteinschätzung gegenüber objektivem 
+System-Zustand. LLM hat Kundenaussage als Authority interpretiert, 
+nicht als Signal.
+
+**Fix in v2:** Few-Shot-Beispiele im Scoring-Prompt, die genau diesen 
+Anti-Pattern abdecken (Kunde framed mild, objektiver Zustand ist 
+schwerwiegend → score by objective state).
+
+**Generalisiert zu:** LLMs übernehmen tonale Signale ungeprüft, wenn 
+der Prompt keine Hierarchie zwischen Datenquellen vorgibt. Bei 
+Triage/Klassifikation muss explizit definiert werden, welche Signale 
+*authoritative* sind (objektiver Zustand, deterministische Felder) 
+und welche nur *informative* sind (Kunden-Tonalität, 
+Selbsteinschätzung). Sonst kalibriert das System nach dem lautesten 
+oder höflichsten Signal — nicht nach dem relevantesten.
