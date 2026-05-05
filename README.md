@@ -50,15 +50,13 @@ Confusion Matrix (expected → predicted):
 - **Critical: 4/4 korrekt.** Keine false negatives bei sicherheitsrelevanten 
   Tickets — der teuerste Fehlerfall ist nicht aufgetreten.
 - **Systematische Unterschätzung:** 6 von 7 Failures sind ein-Stufen-
-  zu-mild-geratet. Pipeline kalibriert konservativ.
+  zu-mild-geratet. Pipeline übergewichtet Kunden-Selbsteinschätzung.
 - **Keine Failure ist mehr als eine Stufe daneben** — Domain-Verständnis 
   des Modells ist solide, nur die Schwellen sitzen falsch.
 
 **Drei identifizierte Failure-Patterns:**
 
-1. Pipeline übergewichtet Kunden-Selbsteinschätzung gegenüber objektivem 
-   Zustand (z.B. Kunde sagt "nicht dringend" bei Heizungsausfall → medium 
-   statt high).
+1. Pipeline übergewichtet Kunden-Selbsteinschätzung — sowohl bei mild geframten kritischen Fällen (Unterschätzung) als auch bei dramatisch geframten harmlosen Fällen (TH-04551, Überschätzung).
 2. Routine-Anfragen mit Geschäftsrelevanz oder Kunden-Frust werden 
    undifferenziert als low geratet, wo medium angemessen wäre.
 3. Frühwarnsignale (z.B. lauter werdende Geräusche) werden nicht als 
