@@ -6,37 +6,56 @@
 
 ## What it does / Was es macht
 
-**EN:** A support triage system that classifies and prioritizes incoming support tickets so support teams act on the right ticket first — keeping their customers happy and reducing customer churn.
+**EN:** A support triage system that classifies and prioritizes incoming support tickets, so support teams act on the right ticket first. Built on n8n with two specialized LLMs (extraction + severity scoring) and a deterministic tier multiplier.
 
-**DE:** Ein Support-Triage-System, das eingehende Support-Tickets klassifiziert und priorisiert, damit Support-Teams das richtige Ticket zuerst bearbeiten — zufriedene Kunden, weniger Churn.
+**DE:** Ein Support-Triage-System, das eingehende Tickets klassifiziert und priorisiert, damit Support-Teams das richtige Ticket zuerst bearbeiten. Gebaut auf n8n, mit zwei spezialisierten LLMs (Extraktion + Severity-Scoring) und einem deterministischen Tier-Multiplier.
 
-*Reference customer: ThermaPlus GmbH (fictional) — Heizung & Wärmepumpe service across Bayern and Baden-Württemberg, ~80 employees, serving B2C homeowners and B2B Hausverwaltungen.*
+*Reference customer: ThermaPlus GmbH (fictional). Heizung & Wärmepumpe service across Bayern and Baden-Württemberg, ~80 employees, B2C and B2B Hausverwaltungen.*
 
 ---
 
 ## Why a customer would care
 
-ThermaPlus GmbH (fictional reference customer): heating and Wärmepumpe service across Bayern and Baden-Württemberg, ~80 employees, serving B2C homeowners and B2B Hausverwaltungen. The support inbox mixes urgent breakdowns ("Heizung aus, -2°C, zwei Kinder zuhause") with routine maintenance scheduling and invoice questions. Without triage, the team works tickets in arrival order — and a frozen family waits behind a billing query.
+In 2026, customer expectations of support response times have shifted. AI has trained users to expect immediate, accurate answers, and a 24-hour first-response window now reads as broken. Mittelstand support teams have not scaled headcount to match.
 
-In 2026, customer expectations of response time have shifted. AI has trained users to expect immediate, accurate answers. A 24-hour first-response window that felt normal three years ago now reads as broken. Mittelstand support teams haven't scaled headcount to match — the gap widens daily.
+For a heating service like ThermaPlus, the cost of bad triage is concrete: a frozen family waits behind a billing query because tickets are worked in arrival order. This system classifies and prioritizes every incoming ticket before a human looks at it, so the team works the right one first.
 
-This system reduces that gap by classifying and prioritizing every incoming ticket before a human looks at it. The team works the right ticket first, every time.
+---
+
+## Architecture
+Webhook trigger (incoming ticket)
+↓
+[ Extraction LLM ]  → schema validation
+↓
+structured ticket JSON
+↓
+[ Scoring LLM ]     → schema validation
+↓
+severity + confidence
+↓
+Tier multiplier (deterministic)
+↓
+final priority = severity × tier × season
+↓
+Google Sheet (v1 storage) → human review
+
+**Why two LLMs.** Extraction is fact-pulling, scoring is judgment. Mixing them in one prompt forces the model to trade attention; separating them improves accuracy on both and makes failures debuggable. *Separation of concerns / Trennung von Zuständigkeiten.*
+
+**Tier multiplier as deterministic logic.** Customer tier (A/B/C) and season (in/out of heating season) are static metadata. Putting their math in code, not an LLM, makes the priority auditable and explainable to a DPO. The answer to "why was my ticket prioritized this way?" is `severity × tier × season`, not "the model thought so."
+
+**Domain knowledge lives in two places.** The scoring prompt encodes German heating-specific rules: heating-season corridor (Oct 1 to Apr 30 per case law), outdoor-temperature thresholds, vulnerable-occupant overrides, safety-signal overrides. The tier-multiplier code encodes the deterministic season factor. Context-dependent heuristics in the LLM, time-based deterministic rules in code.
+
+**Storage.** Google Sheet for v1 (inspectable by eye, easy to grade). Postgres or a real database becomes appropriate at v3+.
 
 ---
 
 ## Eval Results
 
-### v1 — Baseline (5. Mai 2026)
+### v1 baseline (5 May 2026)
 
-Held-out test set: 30 synthetische ThermaPlus-Tickets mit Ground-Truth-
-Annotation (severity, intent, edge_case). Tickets decken bewusst die 
-Edge-Cases ab, die in der Domäne wehtun: vulnerable households, 
-calmly-critical phrasings, multi-property B2B, mixed language, 
-panic-but-cosmetic.
+Held-out test set: 30 synthetic ThermaPlus tickets with ground-truth annotation. Tickets deliberately cover the edge cases that hurt: vulnerable households, calmly-critical phrasings, multi-property B2B, mixed language, panic-but-cosmetic.
 
 **Severity Accuracy: 76.7% (23/30)**
-
-Confusion Matrix (expected → predicted):
 
 |              | low | medium | high | critical |
 |--------------|-----|--------|------|----------|
@@ -45,103 +64,13 @@ Confusion Matrix (expected → predicted):
 | **high**     | 0   | 2      | 7    | 0        |
 | **critical** | 0   | 0      | 0    | 4        |
 
-**Beobachtungen:**
+Critical: 4 of 4 correct, no false negatives on safety-relevant tickets. All 7 failures are off by exactly one level, indicating solid domain understanding but miscalibrated thresholds. Three failure patterns: (1) pipeline overweights customer self-assessment in both directions, (2) routine inquiries with business relevance or frustration get rated low instead of medium, (3) early-warning signals get rated medium instead of high.
 
-- **Critical: 4/4 korrekt.** Keine false negatives bei sicherheitsrelevanten 
-  Tickets — der teuerste Fehlerfall ist nicht aufgetreten.
-- **Systematische Unterschätzung:** 6 von 7 Failures sind ein-Stufen-
-  zu-mild-geratet. Pipeline übergewichtet Kunden-Selbsteinschätzung.
-- **Keine Failure ist mehr als eine Stufe daneben** — Domain-Verständnis 
-  des Modells ist solide, nur die Schwellen sitzen falsch.
+### v2 after prompt iteration (5 May 2026)
 
-**Drei identifizierte Failure-Patterns:**
+Same test set. Prompt changes: added an Authority Hierarchy section (objective state outranks customer framing), sharpened the low/medium boundary to cover routine-with-escalation-risk, added three in-prompt few-shot examples derived from v1 failures.
 
-1. Pipeline übergewichtet Kunden-Selbsteinschätzung — sowohl bei mild geframten kritischen Fällen (Unterschätzung) als auch bei dramatisch geframten harmlosen Fällen (TH-04551, Überschätzung).
-2. Routine-Anfragen mit Geschäftsrelevanz oder Kunden-Frust werden 
-   undifferenziert als low geratet, wo medium angemessen wäre.
-3. Frühwarnsignale (z.B. lauter werdende Geräusche) werden nicht als 
-   high erkannt.
-
-→ Mitigationen in v2 (siehe unten).
-
-### v2 — [Datum, sobald gemessen]
-
-[Platzhalter: gleiche Struktur, neue Zahlen, Delta v1→v2 explizit ausweisen]
-
-
-## Architecture
-
-Webhook trigger (incoming ticket)
-      ↓
-[ Extraction LLM ]  → schema validation
-      ↓
-  structured ticket JSON
-      ↓
-[ Scoring LLM ]     → schema validation
-      ↓
-  severity score (1-5) + confidence
-      ↓
-Tier multiplier (deterministic business logic)
-      ↓
-Final priority = severity × tier weight
-      ↓
-JSON output → storage (Google Sheet for v1)
-      ↓
-Human reviews and acts
-
-Every LLM call is logged: input, output, latency, tokens, cost.
-
-### Walkthrough
-
-**Trigger.** The helpdesk fires a webhook to our n8n endpoint whenever a new ticket arrives. The payload carries the ticket text plus metadata (sender, ticket ID, timestamp). No polling — events drive the flow.
-
-**Why two LLMs, not one.** Extraction and scoring are different cognitive tasks. Extraction is fact-based: read the ticket, pull structured fields out of unstructured text. Scoring is judgment: take the structured fields and assign severity. Mixing them in one prompt forces the model to trade attention between two jobs, which lowers accuracy on both. Separating them also makes failures debuggable — when output is wrong, we know which stage to inspect. This is separation of concerns / Trennung von Zuständigkeiten.
-
-**Tier multiplier as deterministic logic.** Customer tier (A/B/C, based on contract value or strategic weight) is static metadata. Multiplying severity by a tier weight is business logic, not a judgment call — putting it in code instead of an LLM makes the priority auditable and explainable to a DPO. A customer asking "why was my ticket prioritized this way?" gets a deterministic answer: severity × tier.
-
-**Storage.** Google Sheet for v1. Every result writes one row. Inspectable by eye, easy to grade during the eval phase, no infrastructure to set up. Postgres or a real database becomes appropriate at v3+ when volume grows.
-
-**Human in the loop.** v1: every ticket reviewed by a human before action. The system surfaces priority; humans decide. v2: confidence-gated automation — high-confidence, low-stakes tickets (e.g. routine maintenance scheduling) can route automatically; ambiguous or high-severity tickets always escalate to human review.
-
-Build 1 incorporates German heating-domain knowledge in two places. (1) Scoring LLM prompt: heating-season corridor (Oct 1 – Apr 30 per case law), outdoor-temperature thresholds for heating necessity (11–17°C depending on building energy class), and vulnerable-occupant overrides. (2) Tier-multiplier code: deterministic season-multiplier (1.0 in season, 0.7 out of season). The split mirrors a core principle — context-dependent heuristics in the LLM, time-based deterministic rules in code.
-
----
-
-## Cost, latency, governance
-
-Cost & Latency Profile
-v1 erfasst keine Per-Call-Kosten oder Latenz-Metriken. Bei der Zielarchitektur (zwei gpt-4.1-mini-Calls pro Ticket, kein RAG, keine Tool-Calls) liegen die geschätzten Kosten bei ~$0.001/Ticket. Bei einem realistischen Volumen für ThermaPlus (≤500 Tickets/Monat) ergibt das <$1/Monat — Telemetrie-Overhead in der Größenordnung des Messobjekts.
-Das Pattern (Per-Call-Logging mit Token/Latency/Cost in separater Telemetry-Tabelle, fail-open angeschlossen) wird in Build [N] eingeführt, sobald RAG-Kontexte oder Multi-Step-Agents die Kosten in einen Bereich bringen, wo Forecasting business-relevant wird.
-Was ich gemessen habe: End-to-End-Latency p50/p95 über 30 Test-Tickets (siehe Eval-Sektion).
-
-**Cost.** LLM calls dominate. Webhook, schema validation, and tier multiplication add negligible cost. For v1 with two LLM calls per ticket, expected cost is single-digit cents per 100 tickets at current model pricing. Exact numbers measured after instrumentation and reported here.
-
-**Latency.** Two LLM calls run sequentially. Expected p50 in the 3–5 second range, p95 in the 8–12 second range. Webhook delivery and schema validation are sub-100ms and not the bottleneck. Real numbers reported after instrumentation.
-
-**Governance.** Support tickets contain PII: names, email addresses, phone numbers, postal addresses, sometimes payment details. The system processes data from two customer types: B2C private individuals (full DSGVO/GDPR scope, including right to erasure and data minimization) and B2B Hausverwaltungen (B2B contractual data, lighter consent requirements but still subject to DSGVO for any contained personal data of tenants).
-
-Data flow: ticket text leaves the helpdesk only via authenticated webhook to the n8n instance. LLM calls send ticket content to the model provider; the choice of provider determines processing region (EU vs US) and DPA terms. Storage in Google Sheet for v1 is acceptable for a reference build; production deployment requires EU-hosted storage and a signed DPA with the LLM provider. Logs contain ticket content and must be access-controlled; retention bounded (proposed: 30 days for debug logs, longer only with anonymization).
-
-What a DPO would object to in v1: full ticket content in logs, US-region LLM processing without explicit DPA, indefinite retention. Mitigations land in v2 and are documented in the failure log.
-
----
-
-## Results & next steps
-
-**v1 vs v2 evaluation.** Held-out test set of 30 tickets graded on severity accuracy. Results reported here after eval phase.
-
-### v2 — After Prompt Iteration (5 May 2026)
-
-Same 30-ticket held-out set, scored against the same ground truth.
-
-**Changes from v1:**
-- Added an "Authority Hierarchy" section to the scoring prompt: objective state of the heating system outranks customer self-assessment as a severity signal.
-- Sharpened the low/medium boundary: medium now covers either (a) functionally degraded systems or (b) routine inquiries with elevated escalation risk (frustration, billing disputes, overdue maintenance, B2B with multiple parties affected) — or both.
-- Added three in-prompt few-shot examples derived directly from v1 failure cases (calmly_critical, angry_no_emergency, noise_diagnosis).
-
-**Severity Accuracy: 80.0% (24/30) — up from 76.7% in v1.**
-
-Confusion Matrix (expected → predicted):
+**Severity Accuracy: 80.0% (24/30), up from 76.7% in v1.**
 
 |              | low | medium | high | critical |
 |--------------|-----|--------|------|----------|
@@ -150,81 +79,55 @@ Confusion Matrix (expected → predicted):
 | **high**     | 0   | 2      | 7    | 0        |
 | **critical** | 0   | 0      | 0    | 4        |
 
-**Honest reading:**
+**Honest reading.** v2 fixed exactly one of seven v1 failures (TH-04559, angry customer with no functional emergency). The other six persist with reasoning patterns close to v1. For at least one of these (TH-04535), an isolated single-ticket test produced the correct `high` answer while the same prompt in batch produced `medium`. Same prompt, same temperature=0, different output: a reminder that LLM outputs are not byte-deterministic at T=0, and that prompt-level mitigations have diminishing returns where the model holds a strong learned prior. n=1 evaluation cannot distinguish weak mitigation from inherent variance. Credible before/after needs multi-run eval (mean ± stddev), not point estimates.
 
-v2 fixed exactly one of seven v1 failures — TH-04559 (angry customer with no functional emergency, now correctly classified as medium). The other six failures persist, with reasoning patterns nearly identical to v1.
+---
 
-Worth noting: for at least one of the persistent failures (TH-04535, calmly_critical), an isolated single-ticket curl test returned the correct `high` classification, while the same ticket in the batch eval run produced `medium`. Same prompt, same temperature=0, different output. This is a useful reminder that LLM outputs are not byte-deterministic even at T=0 — OpenAI does not guarantee reproducibility at the API level.
+## Cost & Latency
 
-**What this likely indicates:**
+End-to-end latency, measured client-side via curl timestamps:
 
-- **Prompt-level mitigations have diminishing returns** for failure patterns where the model carries a strong learned prior (e.g. "customer says not urgent" → de-escalate). Adding rules and examples nudges the output distribution, but does not switch a deterministic gate.
-- **n=1 evaluation cannot distinguish weak mitigation from inherent model variance.** Credible before/after comparisons require multi-run evaluation (3-5 runs per version, mean ± standard deviation), not single-batch point estimates. A +3.3pp gain at n=1 may well be noise.
+| Version | n  | min     | p50     | p95      | max      |
+|---------|----|---------|---------|----------|----------|
+| v1      | 30 | 5,499ms | 8,329ms | 12,002ms | 12,863ms |
+| v2      | 29 | 6,002ms | 8,427ms | 13,119ms | 16,494ms |
 
-**Latency Trade-off v1 → v2:**
-v2 fügt Authority-Hierarchy-Regeln und drei Few-Shot-Beispiele zum 
-Scoring-Prompt. Beobachtete Latenz pro Ticket steigt von ~Xs (v1) 
-auf ~Ys (v2). Der zusätzliche Input-Token-Footprint pro LLM-Call 
-ist der dominante Faktor — Few-Shot ist nicht "kostenlos".
+Median is essentially unchanged from v1 to v2 (+1%). p95 grew ~9%, max ~28%. The longer v2 prompt adds tokens to every call but the median impact is small; the wider tail comes from OpenAI server-side variance plus one ticket where the Sheets append node hit a Google rate limit and retried (see FAILURE_LOG, 5 May 2026). Latency is dominated by the two sequential LLM calls and cannot be parallelized: scoring needs the extractor's output as input.
 
-Begründbarer Trade-off, weil: (a) v1 systematische Failure-Patterns 
-hatte (siehe Eval), die ohne Few-Shot/Authority-Regeln nicht zu 
-fixen sind, und (b) für ThermaPlus-Volumen (≤500 Tickets/Monat) 
-auch eine 30-50% Latenz-Erhöhung absolut <1s/Ticket bedeutet — 
-unmerklich für Endnutzer.
+**Cost.** v1 logs no per-call cost. Estimated cost at this architecture (two gpt-4.1-mini calls, no RAG, no tools) is ~$0.001 per ticket. At ThermaPlus volume (≤500 tickets/month), under $1/month. Per-call cost telemetry was deliberately deferred to a build with architectures where forecasting matters (RAG, multi-step agents). Latency was instrumented because the cost is zero (timestamps around the curl call) and it produces the number an end-user feels.
 
-Bei höheren Volumen oder strikten SLA wäre der nächste Schritt: 
-Few-Shot-Beispiele in einen separaten Retrieval-Schritt auslagern 
-(nur die relevantesten 1-2 Beispiele werden pro Ticket eingespielt) 
-statt alle 3 immer mitzuschicken.
+---
 
-**What I'd improve next (v3 territory, not built).**
+## Security & Governance
 
-- Knowledge base lookup: retrieval over resolved ticket history so the system can surface "we've seen this before, here's what worked." This is a RAG subsystem (embeddings, vector store, retrieval evaluation), substantial enough to be its own build.
-- Suggested draft replies: extending the system from triage to first-draft response. The natural evolution into an agentic build that watches, drafts, escalates, and learns from human edits.
-- Real helpdesk connector: replacing the synthetic webhook with a Freshdesk or Zendesk integration.
-- Multi-dimensional scoring: adding churn risk and sentiment-trend signals beyond severity.
+Tickets contain PII: names, emails, phone numbers, addresses, sometimes payment details. Two customer types in scope: B2C private individuals (full DSGVO/GDPR), and B2B Hausverwaltungen (B2B contractual data, but DSGVO still applies to any tenant data inside).
 
-End-to-end-Latenz dominiert durch zwei sequenzielle LLM-Calls (Extraktion + Scoring). Parallelisierung architektur-seitig nicht möglich, da Scoring den Extraktor-Output als Input nutzt. Optimierungs-Hebel für spätere Builds: Modell-Wahl, Prompt-Komprimierung.
+**Data flow.** Tickets enter via authenticated webhook to n8n, get sent to the LLM provider (region and DPA terms depend on provider choice), and get stored in Google Sheets for v1. Production deployment requires EU-hosted storage and a signed DPA with the LLM provider. Logs containing ticket content must be access-controlled with bounded retention (proposed: 30 days, longer only with anonymization).
 
-***Confidence-Threshold-Routing (v3):*** Tickets mit confidence < X 
-automatisch in eine menschliche Review-Queue routen. Voraussetzung: 
-Kalibrierungs-Studie über ≥100 Tickets, da der aktuelle 
-Confidence-Wert nicht kalibriert ist. Standard-Pattern für 
-sicherheitsrelevante Enterprise-Builds.
+**What a DPO would flag in v1:** full ticket content in logs, US-region LLM processing without explicit DPA, indefinite retention. All addressed in the roadmap.
+
+**Synthetic data only.** No real PII has been processed by this system.
+
+---
+
+## Roadmap
+
+This is a v1+v2 demonstrator built over three days. The honest gap to production:
+
+**Evaluation rigor.** Multi-run eval with variance bounds (mean ± stddev over 3-5 runs per version). Test set from 30 to 100+ tickets to make subgroup statistics meaningful.
+
+**Mitigations for v3.** Two-stage verification (a second LLM pass critiques the first against the rules) for failure patterns where prompt-only does not stick. Dynamic few-shot retrieval (top 1-2 examples per ticket, not three static ones). Confidence-threshold routing once confidence values are calibrated.
+
+**Architecture & ops.** Webhook auth, retry on every external API call, monitoring (latency, error rate, severity distribution, drift), staging environment with rollback.
+
+**Compliance.** DPA with OpenAI and Google, audit trail, deletion policy, full GDPR review for real PII.
+
+**Future builds, not v3 of this one.** RAG over resolved-ticket history. Suggested draft replies (the path to an agentic build). Real helpdesk connector (Freshdesk, Zendesk).
+
+**Effort estimate.** MVP-production for one supervised customer: ~2-3 weeks. Multi-tenant production with SLA: 2-3 months. Enterprise with certification: 6-12 months and a small team.
 
 ---
 
 ## About this build
 
-I built this because I wanted to take a pattern I'd already used in a personal project — separating extraction and scoring into two LLM calls — and ask what it would look like for a real business with real volume and real governance constraints. The fictional reference customer (ThermaPlus GmbH) is shaped after Mittelstand companies drowning in support tickets. The discipline applied here — schema enforcement, instrumentation, structured eval, governance notes — is what I'd bring to a customer engagement.
-
-## Roadmap — what would make this production-ready
-
-This is a v1+v2 demonstrator built over three days. It is not a production system. The honest gap analysis:
-
-**Evaluation rigor**
-- Move from n=1 batch eval to multi-run with variance bounds (mean ± stddev across 3-5 runs per version).
-- Expand the test set from 30 tickets to 100+ to make subgroup statistics meaningful (B2B vs B2C, in-season vs off-season, language mix, customer tier).
-
-**Mitigation patterns for v3**
-- Two-stage verification: a second LLM pass critiques the first scoring output against the authority hierarchy and corrects it if needed. Higher latency, but addresses persistence problems where prompt-only mitigation does not stick.
-- Dynamic few-shot retrieval: instead of three static examples in the system prompt, retrieve the 1-2 most-similar examples per ticket from a small embedded library. Reduces token cost while preserving accuracy.
-- Confidence-threshold routing: tickets below a calibrated confidence value go to human review instead of auto-classification. Requires a calibration study first — current confidence values are uncalibrated by design (documented in `scoring.schema.json`).
-
-**Architecture & operations**
-- Auth on the inbound webhook (currently open).
-- Retry policy on every external API call, not only the Sheets append node.
-- Live monitoring (latency, error rate, severity distribution, drift over time) with alerting on anomalies.
-- Staging environment and versioned deployments with a rollback path.
-
-**Compliance & governance**
-- Data Processing Agreement with OpenAI and Google.
-- Audit trail, deletion policy, full GDPR review. This build uses synthetic data only; real PII handling needs a different posture.
-
-**Effort estimate**
-- MVP-production for a single supervised customer (e.g. ThermaPlus alone): ~2-3 weeks.
-- Multi-tenant production with SLA: 2-3 months.
-- Enterprise-grade with certification and 24/7 support: 6-12 months and a small team.
-
-Most of the items above are tracked as hypotheses, not commitments. The point of this section is to make the gap between "demonstrator" and "production" concrete.
+I built this to take a pattern from a personal project (separating extraction and scoring into two LLMs) and ask what it would look like for a real business with real volume and real governance constraints. ThermaPlus is fictional, shaped after Mittelstand companies drowning in support tickets. The discipline applied here, schema enforcement, eval, governance notes, prompt iteration with honest measurement, is what I would bring to a customer engagement.
