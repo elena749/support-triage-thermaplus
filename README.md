@@ -64,6 +64,11 @@ Build 1 incorporates German heating-domain knowledge in two places. (1) Scoring 
 
 ## Cost, latency, governance
 
+Cost & Latency Profile
+v1 erfasst keine Per-Call-Kosten oder Latenz-Metriken. Bei der Zielarchitektur (zwei gpt-4.1-mini-Calls pro Ticket, kein RAG, keine Tool-Calls) liegen die geschätzten Kosten bei ~$0.001/Ticket. Bei einem realistischen Volumen für ThermaPlus (≤500 Tickets/Monat) ergibt das <$1/Monat — Telemetrie-Overhead in der Größenordnung des Messobjekts.
+Das Pattern (Per-Call-Logging mit Token/Latency/Cost in separater Telemetry-Tabelle, fail-open angeschlossen) wird in Build [N] eingeführt, sobald RAG-Kontexte oder Multi-Step-Agents die Kosten in einen Bereich bringen, wo Forecasting business-relevant wird.
+Was ich gemessen habe: End-to-End-Latency p50/p95 über 30 Test-Tickets (siehe Eval-Sektion).
+
 **Cost.** LLM calls dominate. Webhook, schema validation, and tier multiplication add negligible cost. For v1 with two LLM calls per ticket, expected cost is single-digit cents per 100 tickets at current model pricing. Exact numbers measured after instrumentation and reported here.
 
 **Latency.** Two LLM calls run sequentially. Expected p50 in the 3–5 second range, p95 in the 8–12 second range. Webhook delivery and schema validation are sub-100ms and not the bottleneck. Real numbers reported after instrumentation.
