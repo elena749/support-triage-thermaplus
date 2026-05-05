@@ -1,0 +1,29 @@
+# macOS
+.DS_Store
+
+# Environment & secrets
+.env
+.env.local
+*.env
+
+# n8n credentials & local data
+.n8n/
+n8n-data/
+*.credentials.json
+
+# Editor / OS
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Node
+node_modules/
+
+# Local runtime artifacts
+*.tmp
+*.log
