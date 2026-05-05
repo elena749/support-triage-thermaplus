@@ -24,6 +24,53 @@ This system reduces that gap by classifying and prioritizing every incoming tick
 
 ---
 
+## Eval Results
+
+### v1 — Baseline (5. Mai 2026)
+
+Held-out test set: 30 synthetische ThermaPlus-Tickets mit Ground-Truth-
+Annotation (severity, intent, edge_case). Tickets decken bewusst die 
+Edge-Cases ab, die in der Domäne wehtun: vulnerable households, 
+calmly-critical phrasings, multi-property B2B, mixed language, 
+panic-but-cosmetic.
+
+**Severity Accuracy: 76.7% (23/30)**
+
+Confusion Matrix (expected → predicted):
+
+|              | low | medium | high | critical |
+|--------------|-----|--------|------|----------|
+| **low**      | 8   | 1      | 0    | 0        |
+| **medium**   | 4   | 4      | 0    | 0        |
+| **high**     | 0   | 2      | 7    | 0        |
+| **critical** | 0   | 0      | 0    | 4        |
+
+**Beobachtungen:**
+
+- **Critical: 4/4 korrekt.** Keine false negatives bei sicherheitsrelevanten 
+  Tickets — der teuerste Fehlerfall ist nicht aufgetreten.
+- **Systematische Unterschätzung:** 6 von 7 Failures sind ein-Stufen-
+  zu-mild-geratet. Pipeline kalibriert konservativ.
+- **Keine Failure ist mehr als eine Stufe daneben** — Domain-Verständnis 
+  des Modells ist solide, nur die Schwellen sitzen falsch.
+
+**Drei identifizierte Failure-Patterns:**
+
+1. Pipeline übergewichtet Kunden-Selbsteinschätzung gegenüber objektivem 
+   Zustand (z.B. Kunde sagt "nicht dringend" bei Heizungsausfall → medium 
+   statt high).
+2. Routine-Anfragen mit Geschäftsrelevanz oder Kunden-Frust werden 
+   undifferenziert als low geratet, wo medium angemessen wäre.
+3. Frühwarnsignale (z.B. lauter werdende Geräusche) werden nicht als 
+   high erkannt.
+
+→ Mitigationen in v2 (siehe unten).
+
+### v2 — [Datum, sobald gemessen]
+
+[Platzhalter: gleiche Struktur, neue Zahlen, Delta v1→v2 explizit ausweisen]
+
+
 ## Architecture
 
 Webhook trigger (incoming ticket)
