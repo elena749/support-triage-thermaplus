@@ -66,3 +66,27 @@ Selbsteinschätzung). Sonst kalibriert das System nach dem lautesten
 oder höflichsten Signal — nicht nach dem relevantesten.
 
 Ticket-File-Names entkoppelt von Ticket-IDs. Beim Testen einzelner Failures muss erst gesucht werden welches File welchen Ticket-Identifier hat. Generalisiert zu: Test-Daten brauchen einen Index oder eine Naming-Convention, die das Mapping trivial macht — sonst kostet jede Debug-Session Such-Aufwand. Für nächste Builds: Test-Files mit dem Identifier im Filename benennen (z.B. ticket_TH-04535.json).
+
+## 2026-05-05 — Eval-Run-Ziel vor Start nicht separiert
+
+**Was ich tat:** v2-Eval-Run gestartet, ohne den Triage-Tab im Google 
+Sheet vorher zu leeren oder zu duplizieren. v1- und v2-Ergebnisse 
+landen im selben Tab, in derselben Spalten-Struktur, untereinander.
+
+**Was brach:** Saubere Trennung v1 vs v2 für die Auswertung war nicht 
+mehr möglich ohne manuelles Sortieren. Hätte Zeitersparnis von 
+2 Minuten Pre-Setup gegen 5 Minuten Post-Cleanup eingetauscht.
+
+**Root cause:** Eval-Disziplin schreibt vor: vor jedem Run das 
+Output-Ziel definieren. In der Aufregung des "v2 hat den 
+Single-Test bestanden, Run starten!" übersehen.
+
+**Fix:** Sheet nachträglich aufgeräumt — Tab dupliziert, v1 in 
+Archive, v2 im Original-Tab.
+
+**Generalisiert zu:** Bei jedem Eval-Run sind drei Setup-Punkte vor 
+dem Start zu klären, nicht währenddessen oder danach: (1) Wohin 
+schreiben die Outputs? (2) Wie unterscheide ich diesen Run von 
+vorherigen? (3) Was ist die Roll-back-Strategie, falls der Run 
+schiefgeht oder Daten überschreibt? Pre-Run-Checkliste spart 
+Post-Run-Cleanup.
