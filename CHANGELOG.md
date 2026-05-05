@@ -19,3 +19,9 @@
 - Verified end-to-end on Müller ticket dated April 30: critical + Tier C + heating season → final_priority 5.6, in_heating_season TRUE.
 - 30 synthetic eval tickets brainstormed in test-data/tickets_brainstorm.md, covering severity distribution (6/8/10/6), language mix (21 DE / 6 EN / 3 mixed), customer types, tiers, channels, and 16 explicit edge case categories including prompt injection.
 - Workflow v1 exported to n8n/workflow_v1.json.
+
+  ## [v1.0-eval] — 2026-05-05
+- v1 evaluation completed against 30-ticket held-out set
+- Severity accuracy: 76.7% (23/30)
+- Failure patterns identified — see FAILURE_LOG.md (2026-05-05)
+- v2 mitigations planned: few-shot examples in scoring prompt
