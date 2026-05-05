@@ -198,3 +198,33 @@ sicherheitsrelevante Enterprise-Builds.
 ## About this build
 
 I built this because I wanted to take a pattern I'd already used in a personal project — separating extraction and scoring into two LLM calls — and ask what it would look like for a real business with real volume and real governance constraints. The fictional reference customer (ThermaPlus GmbH) is shaped after Mittelstand companies drowning in support tickets. The discipline applied here — schema enforcement, instrumentation, structured eval, governance notes — is what I'd bring to a customer engagement.
+
+## Roadmap — what would make this production-ready
+
+This is a v1+v2 demonstrator built over three days. It is not a production system. The honest gap analysis:
+
+**Evaluation rigor**
+- Move from n=1 batch eval to multi-run with variance bounds (mean ± stddev across 3-5 runs per version).
+- Expand the test set from 30 tickets to 100+ to make subgroup statistics meaningful (B2B vs B2C, in-season vs off-season, language mix, customer tier).
+
+**Mitigation patterns for v3**
+- Two-stage verification: a second LLM pass critiques the first scoring output against the authority hierarchy and corrects it if needed. Higher latency, but addresses persistence problems where prompt-only mitigation does not stick.
+- Dynamic few-shot retrieval: instead of three static examples in the system prompt, retrieve the 1-2 most-similar examples per ticket from a small embedded library. Reduces token cost while preserving accuracy.
+- Confidence-threshold routing: tickets below a calibrated confidence value go to human review instead of auto-classification. Requires a calibration study first — current confidence values are uncalibrated by design (documented in `scoring.schema.json`).
+
+**Architecture & operations**
+- Auth on the inbound webhook (currently open).
+- Retry policy on every external API call, not only the Sheets append node.
+- Live monitoring (latency, error rate, severity distribution, drift over time) with alerting on anomalies.
+- Staging environment and versioned deployments with a rollback path.
+
+**Compliance & governance**
+- Data Processing Agreement with OpenAI and Google.
+- Audit trail, deletion policy, full GDPR review. This build uses synthetic data only; real PII handling needs a different posture.
+
+**Effort estimate**
+- MVP-production for a single supervised customer (e.g. ThermaPlus alone): ~2-3 weeks.
+- Multi-tenant production with SLA: 2-3 months.
+- Enterprise-grade with certification and 24/7 support: 6-12 months and a small team.
+
+Most of the items above are tracked as hypotheses, not commitments. The point of this section is to make the gap between "demonstrator" and "production" concrete.
