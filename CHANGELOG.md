@@ -25,3 +25,9 @@
 - Severity accuracy: 76.7% (23/30)
 - Failure patterns identified — see FAILURE_LOG.md (2026-05-05)
 - v2 mitigations planned: few-shot examples in scoring prompt
+
+## [v2.0-prompts-and-resilience] — 2026-05-05
+
+- Scoring prompt v2: Authority Hierarchy section, sharpened medium/low boundary, three few-shot examples derived from v1 failures
+- Resilience: retry policy on Google Sheets append node (3 tries, 2000ms backoff) — see FAILURE_LOG for rate-limit incident
+- Eval v2: 80.0% severity accuracy (up from 76.7% in v1), 1 of 7 v1 failures fixed; honest analysis in README
