@@ -90,3 +90,27 @@ schreiben die Outputs? (2) Wie unterscheide ich diesen Run von
 vorherigen? (3) Was ist die Roll-back-Strategie, falls der Run 
 schiefgeht oder Daten überschreibt? Pre-Run-Checkliste spart 
 Post-Run-Cleanup.
+
+## 2026-05-05 — Rate limit surfacing only at batch volume
+
+**What I did:** Ran v2 eval batch (30 tickets via curl loop with 1-sec 
+spacing). Single-ticket tests during prompt iteration had all worked.
+
+**What broke:** Ticket 30 returned HTTP 500. n8n execution log: 
+"Problem in node 'Append row in sheet': The service is receiving too 
+many requests from you." — Google Sheets API rate limit (60 writes/
+minute/user).
+
+**Root cause:** Pipeline had no retry policy on the Sheets Append 
+node. Single-ticket smoke tests passed because they never approached 
+the rate limit. Batch volume surfaced the missing resilience.
+
+**Fix:** Enabled "Retry on Fail" on the Sheets Append node (3 tries, 
+2000ms between). Mitigation lives at the failure point — not 
+prophylactically in the caller.
+
+**Generalizes to:** "It worked at low volume" is not evidence a 
+pipeline is safe. Rate limits, throttling, and transient API errors 
+surface only under load. Any external-service write needs an explicit 
+retry policy as a default — not as an optimization. Smoke tests 
+deceive when the real risk is volume-dependent.
