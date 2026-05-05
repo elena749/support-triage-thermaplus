@@ -64,3 +64,5 @@ Triage/Klassifikation muss explizit definiert werden, welche Signale
 und welche nur *informative* sind (Kunden-Tonalität, 
 Selbsteinschätzung). Sonst kalibriert das System nach dem lautesten 
 oder höflichsten Signal — nicht nach dem relevantesten.
+
+Ticket-File-Names entkoppelt von Ticket-IDs. Beim Testen einzelner Failures muss erst gesucht werden welches File welchen Ticket-Identifier hat. Generalisiert zu: Test-Daten brauchen einen Index oder eine Naming-Convention, die das Mapping trivial macht — sonst kostet jede Debug-Session Such-Aufwand. Für nächste Builds: Test-Files mit dem Identifier im Filename benennen (z.B. ticket_TH-04535.json).
