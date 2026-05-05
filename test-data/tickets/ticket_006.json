@@ -1,0 +1,12 @@
+{
+  "ticket_id": "TH-2026-04536",
+  "subject": "Help — Heizung kaputt!!",
+  "body": "Hello, my Heizung is completely out since this morning. Sehr kalt in apartment, baby is sick. Please send help asap! Address: Münchner Str 8, Augsburg.",
+  "sender_email": "kovacs@example.com",
+  "customer_id": "CUST-04536",
+  "customer_type": "private",
+  "customer_tier": "C",
+  "received_at": "2026-01-30T09:12:00Z",
+  "channel": "webform",
+  "sender_name": "Maria Kovacs"
+}

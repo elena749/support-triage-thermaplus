@@ -1,0 +1,11 @@
+{
+  "ticket_id": "TH-2026-04548",
+  "subject": "Fehler F22",
+  "body": "Heizung zeigt seit gestern abend dauerhaft F22 im Display. Habe sie einmal aus- und eingeschaltet, kommt direkt zurück. Funktioniert noch, macht aber Geräusche. Bitte Termin.",
+  "sender_email": "hofmeister@example.com",
+  "customer_id": "CUST-04548",
+  "customer_type": "private",
+  "customer_tier": "B",
+  "received_at": "2026-11-15T07:42:00Z",
+  "channel": "email"
+}

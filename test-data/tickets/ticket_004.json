@@ -1,0 +1,12 @@
+{
+  "ticket_id": "TH-2026-04534",
+  "subject": "Heizungsausfall in 3 Wohnungen — Bestandsobjekt",
+  "body": "Sehr geehrte Damen und Herren, in unserem Objekt Lindenstraße 22-24 (Würzburg) sind seit gestern in 3 Wohnungen die Heizungen ausgefallen. Mieter melden Temperaturen unter 18°C. Wir bitten um schnellstmögliche Bearbeitung. Vertragsnummer SC-2024-1188.",
+  "sender_email": "kontakt@hausverwaltung-bayern.de",
+  "customer_id": "CUST-04534",
+  "customer_type": "business",
+  "customer_tier": "A",
+  "received_at": "2026-03-09T08:55:00Z",
+  "channel": "email",
+  "sender_name": "Hausverwaltung Bayern GmbH"
+}

@@ -1,0 +1,11 @@
+{
+  "ticket_id": "TH-2026-04542",
+  "subject": "Anfrage Wärmepumpe Neubau",
+  "body": "Guten Tag, wir bauen ein Einfamilienhaus in Augsburg, 160qm Wohnfläche, KfW-55. Können Sie ein Angebot für eine Luft-Wasser-Wärmepumpe erstellen? Förderberechtigt nach BEG. Bitte mit Voraussichtsdatum für Installation.",
+  "sender_email": "neubau-meier@example.com",
+  "customer_id": "CUST-04542",
+  "customer_type": "private",
+  "customer_tier": "C",
+  "received_at": "2026-09-08T16:30:00Z",
+  "channel": "webform"
+}

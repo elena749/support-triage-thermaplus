@@ -1,0 +1,12 @@
+{
+  "ticket_id": "TH-2026-04541",
+  "subject": "Wärmepumpe defekt — Garantiefall",
+  "body": "Unsere Vaillant aroTHERM Wärmepumpe wurde im März 2024 von Ihnen installiert. Seit gestern keine Heizleistung mehr, Display zeigt nur F.27. Da die Garantiefrist noch läuft, melde ich das hiermit als Gewährleistungsfall. Vertragsnummer: VT-2024-0917.",
+  "sender_email": "bauer@example.com",
+  "customer_id": "CUST-04541",
+  "customer_type": "private",
+  "customer_tier": "B",
+  "received_at": "2026-12-04T10:11:00Z",
+  "channel": "email",
+  "sender_name": "Herr Bauer"
+}

@@ -1,0 +1,12 @@
+{
+  "ticket_id": "TH-2026-04553",
+  "subject": "Quote request — heat pump retrofit, Munich office",
+  "body": "Hello, we are renovating our office building (Maximilianstr 14, 80539 München, ~600sqm, 3 floors). Looking for a heat pump retrofit quote. BEG funding planned. Could we schedule a site visit in the next 2 weeks? Thanks, Jakob Lentz.",
+  "sender_email": "jakob.lentz@lentz-architekten.de",
+  "customer_id": "CUST-04553",
+  "customer_type": "business",
+  "customer_tier": "B",
+  "received_at": "2026-09-25T15:18:00Z",
+  "channel": "webform",
+  "sender_name": "Jakob Lentz"
+}

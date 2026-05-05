@@ -1,0 +1,11 @@
+{
+  "ticket_id": "TH-2026-04557",
+  "subject": "Question about Rechnung",
+  "body": "Hallo, I received the Rechnung from März but the Betrag scheint not correct. Could someone clarify? Account number: KU-9912. Danke und thanks!",
+  "sender_email": "international@example.com",
+  "customer_id": "CUST-04557",
+  "customer_type": "private",
+  "customer_tier": "B",
+  "received_at": "2026-04-15T09:50:00Z",
+  "channel": "email"
+}

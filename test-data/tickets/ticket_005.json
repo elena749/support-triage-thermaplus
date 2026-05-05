@@ -1,0 +1,12 @@
+{
+  "ticket_id": "TH-2026-04535",
+  "subject": "Frage zu Heizung",
+  "body": "Liebe ThermaPlus, ich wollte freundlich nachfragen, ob jemand kurz vorbeischauen könnte. Bei uns ist seit Dienstag die Heizung aus. Es ist nicht super dringend, ich wollte nur Bescheid geben. Vielen Dank im Voraus, Frau Schwarz.",
+  "sender_email": "schwarz@example.com",
+  "customer_id": "CUST-04535",
+  "customer_type": "private",
+  "customer_tier": "B",
+  "received_at": "2026-02-04T11:08:00Z",
+  "channel": "email",
+  "sender_name": "Frau Schwarz"
+}

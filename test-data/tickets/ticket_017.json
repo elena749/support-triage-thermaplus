@@ -1,0 +1,11 @@
+{
+  "ticket_id": "TH-2026-04547",
+  "subject": "Heizungsausfall — Mietminderung angekündigt",
+  "body": "Sehr geehrte ThermaPlus, in unserem Objekt Bahnhofstr 8, 70173 Stuttgart, ist die Heizung seit dem 5. März defekt. Mieter haben heute Mietminderung ab nächster Woche angekündigt. Bitte umgehend Termin. Vertrag VS-1841.",
+  "sender_email": "hv-stuttgart@example.com",
+  "customer_id": "CUST-04547",
+  "customer_type": "business",
+  "customer_tier": "A",
+  "received_at": "2026-03-12T09:18:00Z",
+  "channel": "email"
+}

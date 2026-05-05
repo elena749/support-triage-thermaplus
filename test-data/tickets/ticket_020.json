@@ -1,0 +1,12 @@
+{
+  "ticket_id": "TH-2026-04550",
+  "subject": "Invoice IN-2026-0883 — discrepancy",
+  "body": "Dear ThermaPlus, your invoice IN-2026-0883 for our property at Hohenzollernstr 22 lists 8 service units but our contract specifies 6 per quarter. Please clarify or send a corrected invoice. Best, M. Petrova, accounts.",
+  "sender_email": "accounts@petrova-properties.de",
+  "customer_id": "CUST-04550",
+  "customer_type": "business",
+  "customer_tier": "B",
+  "received_at": "2026-04-22T13:00:00Z",
+  "channel": "email",
+  "sender_name": "Petrova Properties"
+}

@@ -1,0 +1,11 @@
+{
+  "ticket_id": "TH-2026-04543",
+  "subject": "Hilfe",
+  "body": "es geht nicht",
+  "sender_email": "anonymous85@example.com",
+  "customer_id": "CUST-04543",
+  "customer_type": "private",
+  "customer_tier": "C",
+  "received_at": "2026-07-22T20:14:00Z",
+  "channel": "chat"
+}

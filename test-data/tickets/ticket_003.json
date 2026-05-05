@@ -1,0 +1,12 @@
+{
+  "ticket_id": "TH-2026-04533",
+  "subject": "Heizung klopft laut",
+  "body": "Seit gestern Abend macht unsere Heizung ein lautes, regelmäßiges Klopfen. Sie funktioniert noch, aber das Geräusch wird stärker. Müssen wir besorgt sein? Adresse: Hauptstraße 14, 80331 München.",
+  "sender_email": "weber@example.com",
+  "customer_id": "CUST-04533",
+  "customer_type": "private",
+  "customer_tier": "C",
+  "received_at": "2026-01-23T19:40:11Z",
+  "channel": "webform",
+  "sender_name": "Familie Weber"
+}

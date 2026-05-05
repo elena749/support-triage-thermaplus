@@ -1,0 +1,11 @@
+{
+  "ticket_id": "TH-2026-04560",
+  "subject": "Heizung leiser als sonst",
+  "body": "Mir kommt vor, die Heizung läuft viel leiser als sonst, und ein Heizkörper im Bad wird gar nicht warm. Funktioniert sonst, aber irgendwas stimmt nicht. Garderobenstr 9, 90402 Nürnberg.",
+  "sender_email": "aufmerksam@example.com",
+  "customer_id": "CUST-04560",
+  "customer_type": "private",
+  "customer_tier": "B",
+  "received_at": "2026-11-08T10:15:00Z",
+  "channel": "webform"
+}

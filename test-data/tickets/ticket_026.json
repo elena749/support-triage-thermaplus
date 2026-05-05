@@ -1,0 +1,11 @@
+{
+  "ticket_id": "TH-2026-04556",
+  "subject": "Heizungsausfall in 3 von 14 Einheiten",
+  "body": "Sehr geehrte Damen und Herren, in unserem Objekt Königstr 56-60, 70173 Stuttgart (14 Wohneinheiten) sind seit heute Morgen die Heizungen in den Wohnungen 3, 7 und 11 ausgefallen. Mieter melden Temperaturen um 16 Grad. Die anderen Einheiten laufen normal. Vertrag SC-2023-0512.",
+  "sender_email": "koenigstr@bw-hausverwaltung.de",
+  "customer_id": "CUST-04556",
+  "customer_type": "business",
+  "customer_tier": "A",
+  "received_at": "2026-01-15T07:25:00Z",
+  "channel": "email"
+}

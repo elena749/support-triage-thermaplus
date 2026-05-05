@@ -1,0 +1,11 @@
+{
+  "ticket_id": "TH-2026-04544",
+  "subject": "DRINGEND!!!",
+  "body": "WANN IST MEINE NÄCHSTE WARTUNG??? KEINE INFO BEKOMMEN!!! BITTE SOFORT ANTWORTEN!!!",
+  "sender_email": "kunde7@example.com",
+  "customer_id": "CUST-04544",
+  "customer_type": "private",
+  "customer_tier": "C",
+  "received_at": "2026-06-04T11:55:00Z",
+  "channel": "email"
+}

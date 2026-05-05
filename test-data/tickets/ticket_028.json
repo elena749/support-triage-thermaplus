@@ -1,0 +1,11 @@
+{
+  "ticket_id": "TH-2026-04558",
+  "subject": "Frage zu BAFA-Förderung",
+  "body": "Guten Tag, ich überlege, im nächsten Jahr eine Wärmepumpe einzubauen. Welche BAFA-Förderung gilt aktuell für Bestandsbau? Lohnt es sich, jetzt zu beantragen oder eher in 2027? Vielen Dank.",
+  "sender_email": "planer@example.com",
+  "customer_id": "CUST-04558",
+  "customer_type": "private",
+  "customer_tier": "C",
+  "received_at": "2026-08-29T10:30:00Z",
+  "channel": "webform"
+}

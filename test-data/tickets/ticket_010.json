@@ -1,0 +1,11 @@
+{
+  "ticket_id": "TH-2026-04540",
+  "subject": "Ein Heizkörper wird nicht warm",
+  "body": "Im Winter lief alles gut. Seit Anfang Mai wird der Heizkörper im Schlafzimmer nicht mehr warm, in den anderen Räumen aber schon. Komisch. Adresse: Schillerstr 4, 81677 München.",
+  "sender_email": "peters@example.com",
+  "customer_id": "CUST-04540",
+  "customer_type": "private",
+  "customer_tier": "B",
+  "received_at": "2026-05-12T14:22:00Z",
+  "channel": "email"
+}

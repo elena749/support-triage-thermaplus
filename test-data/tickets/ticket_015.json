@@ -1,0 +1,11 @@
+{
+  "ticket_id": "TH-2026-04545",
+  "subject": "Heizung kunde problem",
+  "body": "Ich Marek bin Hausmeister Wohnung Schmidt Familie. Heizung kein heiss seit zwei Tag. Familie nicht zuhause aber muss reparieren bald. Adresse: Augsburger Str 41, Nürnberg. Telefon Schmidt: 0911 4456789.",
+  "sender_email": "marek@hausmeister-bayern.de",
+  "customer_id": "CUST-04545",
+  "customer_type": "private",
+  "customer_tier": "C",
+  "received_at": "2026-02-19T08:45:00Z",
+  "channel": "phone_transcript"
+}

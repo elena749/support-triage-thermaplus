@@ -1,0 +1,11 @@
+{
+  "ticket_id": "TH-2026-04552",
+  "subject": "Heizung wärmt nicht mehr richtig",
+  "body": "Mir fällt auf, dass die Heizkörper im Wohnzimmer nur noch lauwarm werden, früher waren sie richtig heiß. Ist nicht akut, aber ich denke es sollte angeschaut werden. Adresse: Theresienhöhe 3, München.",
+  "sender_email": "ruhig@example.com",
+  "customer_id": "CUST-04552",
+  "customer_type": "private",
+  "customer_tier": "B",
+  "received_at": "2026-12-19T11:15:00Z",
+  "channel": "email"
+}

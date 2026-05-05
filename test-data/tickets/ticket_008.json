@@ -1,0 +1,12 @@
+{
+  "ticket_id": "TH-2026-04538",
+  "subject": "Heizung klopft, riecht komisch",
+  "body": "Hallo, unsere Heizung klopft seit ein paar Stunden ziemlich laut, und im Heizungsraum riecht es etwas nach Gas. Wissen wir nicht, ob das normal ist.",
+  "sender_email": "lange@example.com",
+  "customer_id": "CUST-04538",
+  "customer_type": "private",
+  "customer_tier": "C",
+  "received_at": "2026-11-22T16:45:00Z",
+  "channel": "webform",
+  "sender_name": "Familie Lange"
+}

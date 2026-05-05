@@ -1,0 +1,12 @@
+{
+  "ticket_id": "TH-2026-04532",
+  "subject": "Annual maintenance reminder question",
+  "body": "Hello, my last service was in October 2025. Could you please tell me when my next maintenance is due? My customer number is 8821 and the device is a Vaillant heat pump installed in 2023. Order reference from last visit was OR-44218. Thanks!",
+  "sender_email": "smith@example.com",
+  "customer_id": "CUST-04532",
+  "customer_type": "private",
+  "customer_tier": "B",
+  "received_at": "2026-05-04T13:22:00Z",
+  "channel": "webform",
+  "sender_name": "John Smith"
+}

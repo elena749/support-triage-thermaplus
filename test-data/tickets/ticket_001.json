@@ -1,0 +1,12 @@
+{
+  "ticket_id": "TH-2026-04321",
+  "subject": "Heizung defekt",
+  "body": "Heizung aus seit heute Morgen, sehr kalt, zwei kleine Kinder, bitte dringend Hilfe.",
+  "sender_email": "mueller@example.com",
+  "customer_id": "CUST-04321",
+  "customer_type": "private",
+  "customer_tier": "C",
+  "received_at": "2026-02-12T07:14:22Z",
+  "channel": "email",
+  "sender_name": "Familie Mueller"
+}

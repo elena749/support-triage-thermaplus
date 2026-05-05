@@ -1,0 +1,152 @@
+{
+  "TH-2026-04321": {
+    "expected_severity": "critical",
+    "expected_intent": "breakdown_emergency",
+    "edge_case": "vulnerable_household (children mentioned, in heating season)"
+  },
+  "TH-2026-04532": {
+    "expected_severity": "low",
+    "expected_intent": "appointment_scheduling",
+    "edge_case": "customer_number_vs_order_id"
+  },
+  "TH-2026-04533": {
+    "expected_severity": "high",
+    "expected_intent": "repair_request",
+    "edge_case": "noise_diagnosis"
+  },
+  "TH-2026-04534": {
+    "expected_severity": "high",
+    "expected_intent": "breakdown_emergency",
+    "edge_case": "multi_property_business_tier_a"
+  },
+  "TH-2026-04535": {
+    "expected_severity": "high",
+    "expected_intent": "repair_request",
+    "edge_case": "calmly_critical"
+  },
+  "TH-2026-04536": {
+    "expected_severity": "critical",
+    "expected_intent": "breakdown_emergency",
+    "edge_case": "mixed_language"
+  },
+  "TH-2026-04537": {
+    "expected_severity": "low",
+    "expected_intent": "other",
+    "edge_case": "prompt_injection"
+  },
+  "TH-2026-04538": {
+    "expected_severity": "critical",
+    "expected_intent": "breakdown_emergency",
+    "edge_case": "safety_signal_clear_critical"
+  },
+  "TH-2026-04539": {
+    "expected_severity": "high",
+    "expected_intent": "complaint",
+    "edge_case": "multi_intent"
+  },
+  "TH-2026-04540": {
+    "expected_severity": "medium",
+    "expected_intent": "repair_request",
+    "edge_case": "partial_failure_outside_season (ein Heizkörper kalt, Mai, weniger akut)"
+  },
+  "TH-2026-04541": {
+    "expected_severity": "high",
+    "expected_intent": "warranty_claim",
+    "edge_case": "warranty_within_period"
+  },
+  "TH-2026-04542": {
+    "expected_severity": "low",
+    "expected_intent": "quote_request",
+    "edge_case": "wrong_channel"
+  },
+  "TH-2026-04543": {
+    "expected_severity": "medium",
+    "expected_intent": "other",
+    "edge_case": "empty_sparse"
+  },
+  "TH-2026-04544": {
+    "expected_severity": "low",
+    "expected_intent": "appointment_scheduling",
+    "edge_case": "false_urgency"
+  },
+  "TH-2026-04545": {
+    "expected_severity": "high",
+    "expected_intent": "repair_request",
+    "edge_case": "broken_german_third_party"
+  },
+  "TH-2026-04546": {
+    "expected_severity": "medium",
+    "expected_intent": "appointment_scheduling",
+    "edge_case": "delayed_maintenance"
+  },
+  "TH-2026-04547": {
+    "expected_severity": "high",
+    "expected_intent": "complaint",
+    "edge_case": "legal_pressure"
+  },
+  "TH-2026-04548": {
+    "expected_severity": "high",
+    "expected_intent": "repair_request",
+    "edge_case": "technical_error_code"
+  },
+  "TH-2026-04549": {
+    "expected_severity": "low",
+    "expected_intent": "appointment_confirmation",
+    "edge_case": "straightforward_english_low_severity"
+  },
+  "TH-2026-04550": {
+    "expected_severity": "medium",
+    "expected_intent": "billing_question",
+    "edge_case": "business_english_billing"
+  },
+  "TH-2026-04551": {
+    "expected_severity": "low",
+    "expected_intent": "other",
+    "edge_case": "panic_but_cosmetic"
+  },
+  "TH-2026-04552": {
+    "expected_severity": "medium",
+    "expected_intent": "repair_request",
+    "edge_case": "quietly_degraded"
+  },
+  "TH-2026-04553": {
+    "expected_severity": "low",
+    "expected_intent": "quote_request",
+    "edge_case": "english_b2b_quote"
+  },
+  "TH-2026-04554": {
+    "expected_severity": "critical",
+    "expected_intent": "breakdown_emergency",
+    "edge_case": "vulnerable_renter (pregnancy overrides season)"
+  },
+  "TH-2026-04555": {
+    "expected_severity": "low",
+    "expected_intent": "appointment_confirmation",
+    "edge_case": "routine_confirmation"
+  },
+  "TH-2026-04556": {
+    "expected_severity": "high",
+    "expected_intent": "breakdown_emergency",
+    "edge_case": "business_multi_property_subset"
+  },
+  "TH-2026-04557": {
+    "expected_severity": "medium",
+    "expected_intent": "billing_question",
+    "edge_case": "mixed_language_routine"
+  },
+  "TH-2026-04558": {
+    "expected_severity": "low",
+    "expected_intent": "other",
+    "edge_case": "general_inquiry_no_action"
+  },
+  "TH-2026-04559": {
+    "expected_severity": "medium",
+    "expected_intent": "complaint",
+    "edge_case": "angry_customer_no_emergency"
+  },
+  "TH-2026-04560": {
+    "expected_severity": "medium",
+    "expected_intent": "repair_request",
+    "edge_case": "ambiguous_severity"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "ticket_id": "TH-2026-04554",
+  "subject": "Heizung defekt — schwanger im 8. Monat",
+  "body": "Bitte um Hilfe. Bin Mieterin in Würzburg, Friedrichstr 18. Heizung seit gestern abend komplett aus, Vermieter nicht erreichbar. Bin schwanger im 8. Monat, in der Wohnung sind 14 Grad. Vertrag läuft über die ThermaPlus Service-Adresse.",
+  "sender_email": "keskin.aylin@example.com",
+  "customer_id": "CUST-04554",
+  "customer_type": "private",
+  "customer_tier": "C",
+  "received_at": "2026-04-08T22:14:00Z",
+  "channel": "phone_transcript",
+  "sender_name": "Aylin Keskin"
+}

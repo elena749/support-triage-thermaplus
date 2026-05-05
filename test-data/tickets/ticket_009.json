@@ -1,0 +1,12 @@
+{
+  "ticket_id": "TH-2026-04539",
+  "subject": "Mehrere offene Punkte",
+  "body": "Sehr geehrte Damen und Herren, in unserem Objekt Goethestr 12 in Stuttgart funktioniert die Heizung in Wohnung 3 seit Mittwoch nicht. Außerdem ist Ihre Rechnung vom 14. April unklar — der Wartungsbetrag liegt 30 Prozent über Vertrag. Drittens: wann steht die nächste Jahreswartung an? Bitte zeitnah klären, sonst müssen wir den Vertrag prüfen.",
+  "sender_email": "verwaltung@bw-immobilien.de",
+  "customer_id": "CUST-04539",
+  "customer_type": "business",
+  "customer_tier": "A",
+  "received_at": "2026-04-18T09:30:00Z",
+  "channel": "email",
+  "sender_name": "BW Immobilien"
+}

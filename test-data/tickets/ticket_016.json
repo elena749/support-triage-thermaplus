@@ -1,0 +1,11 @@
+{
+  "ticket_id": "TH-2026-04546",
+  "subject": "Wartung 2022 — was nun?",
+  "body": "Hallo, ich habe gerade festgestellt, dass meine letzte Wartung im Oktober 2022 war. Bisher keine Probleme mit der Heizung. Ist das ein Problem? Sollten wir was nachholen?",
+  "sender_email": "vergesslich@example.com",
+  "customer_id": "CUST-04546",
+  "customer_type": "private",
+  "customer_tier": "B",
+  "received_at": "2026-08-14T10:25:00Z",
+  "channel": "email"
+}

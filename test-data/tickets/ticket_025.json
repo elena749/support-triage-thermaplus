@@ -1,0 +1,11 @@
+{
+  "ticket_id": "TH-2026-04555",
+  "subject": "Bestätigung Termin 8. Mai",
+  "body": "Hallo, hiermit bestätige ich den Wartungstermin am 8. Mai um 14 Uhr in der Goethestr 41, Augsburg. Eine kurze Frage: kommt der gleiche Techniker wie letztes Jahr? Herr Berger war sehr gründlich. Danke.",
+  "sender_email": "dankbar@example.com",
+  "customer_id": "CUST-04555",
+  "customer_type": "private",
+  "customer_tier": "B",
+  "received_at": "2026-05-02T16:42:00Z",
+  "channel": "email"
+}

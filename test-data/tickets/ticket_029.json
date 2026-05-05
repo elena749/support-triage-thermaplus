@@ -1,0 +1,11 @@
+{
+  "ticket_id": "TH-2026-04559",
+  "subject": "Letzter Techniker — eine Frechheit",
+  "body": "Ihr Techniker am 22. April war zwei Stunden zu spät, hat den Wohnzimmerteppich mit Werkzeug verkratzt und hat sich nicht verabschiedet. Ich erwarte eine Stellungnahme und Ersatz für den Teppich. Sonst storniere ich den Wartungsvertrag. Vertragsnr WT-2022-1144.",
+  "sender_email": "angepisst@example.com",
+  "customer_id": "CUST-04559",
+  "customer_type": "private",
+  "customer_tier": "B",
+  "received_at": "2026-04-29T17:10:00Z",
+  "channel": "email"
+}

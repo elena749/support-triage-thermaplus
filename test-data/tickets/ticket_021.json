@@ -1,0 +1,11 @@
+{
+  "ticket_id": "TH-2026-04551",
+  "subject": "PROBLEM!!! Display blinkt!!",
+  "body": "Hilfe, das Display von der Heizung blinkt seit heute morgen die ganze Zeit blau! Heizung läuft normal, alle Räume warm, aber das Blinken nervt total und macht mir Sorgen. Was bedeutet das?? Bitte schnell.",
+  "sender_email": "nervös@example.com",
+  "customer_id": "CUST-04551",
+  "customer_type": "private",
+  "customer_tier": "C",
+  "received_at": "2026-10-19T08:30:00Z",
+  "channel": "chat"
+}

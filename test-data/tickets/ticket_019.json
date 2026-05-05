@@ -1,0 +1,12 @@
+{
+  "ticket_id": "TH-2026-04549",
+  "subject": "Confirming maintenance appointment May 12",
+  "body": "Hi team, just confirming the scheduled annual maintenance for May 12 at 10am at Augsburger Str 5, München. Anything I need to prepare beforehand? Thanks, R. Williams.",
+  "sender_email": "r.williams@example.com",
+  "customer_id": "CUST-04549",
+  "customer_type": "private",
+  "customer_tier": "B",
+  "received_at": "2026-05-08T14:30:00Z",
+  "channel": "email",
+  "sender_name": "Robert Williams"
+}
