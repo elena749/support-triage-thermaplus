@@ -130,6 +130,23 @@ What a DPO would object to in v1: full ticket content in logs, US-region LLM pro
 
 **v1 vs v2 evaluation.** Held-out test set of 25 tickets graded on severity accuracy. Results reported here after eval phase.
 
+**Latency Trade-off v1 → v2:**
+v2 fügt Authority-Hierarchy-Regeln und drei Few-Shot-Beispiele zum 
+Scoring-Prompt. Beobachtete Latenz pro Ticket steigt von ~Xs (v1) 
+auf ~Ys (v2). Der zusätzliche Input-Token-Footprint pro LLM-Call 
+ist der dominante Faktor — Few-Shot ist nicht "kostenlos".
+
+Begründbarer Trade-off, weil: (a) v1 systematische Failure-Patterns 
+hatte (siehe Eval), die ohne Few-Shot/Authority-Regeln nicht zu 
+fixen sind, und (b) für ThermaPlus-Volumen (≤500 Tickets/Monat) 
+auch eine 30-50% Latenz-Erhöhung absolut <1s/Ticket bedeutet — 
+unmerklich für Endnutzer.
+
+Bei höheren Volumen oder strikten SLA wäre der nächste Schritt: 
+Few-Shot-Beispiele in einen separaten Retrieval-Schritt auslagern 
+(nur die relevantesten 1-2 Beispiele werden pro Ticket eingespielt) 
+statt alle 3 immer mitzuschicken.
+
 **What I'd improve next (v3 territory, not built).**
 
 - Knowledge base lookup: retrieval over resolved ticket history so the system can surface "we've seen this before, here's what worked." This is a RAG subsystem (embeddings, vector store, retrieval evaluation), substantial enough to be its own build.
