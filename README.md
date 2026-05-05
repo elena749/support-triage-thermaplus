@@ -92,6 +92,8 @@ What a DPO would object to in v1: full ticket content in logs, US-region LLM pro
 - Real helpdesk connector: replacing the synthetic webhook with a Freshdesk or Zendesk integration.
 - Multi-dimensional scoring: adding churn risk and sentiment-trend signals beyond severity.
 
+End-to-end-Latenz dominiert durch zwei sequenzielle LLM-Calls (Extraktion + Scoring). Parallelisierung architektur-seitig nicht möglich, da Scoring den Extraktor-Output als Input nutzt. Optimierungs-Hebel für spätere Builds: Modell-Wahl, Prompt-Komprimierung.
+
 ---
 
 ## About this build
