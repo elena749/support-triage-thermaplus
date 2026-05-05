@@ -139,6 +139,12 @@ What a DPO would object to in v1: full ticket content in logs, US-region LLM pro
 
 End-to-end-Latenz dominiert durch zwei sequenzielle LLM-Calls (Extraktion + Scoring). Parallelisierung architektur-seitig nicht möglich, da Scoring den Extraktor-Output als Input nutzt. Optimierungs-Hebel für spätere Builds: Modell-Wahl, Prompt-Komprimierung.
 
+***Confidence-Threshold-Routing (v3):*** Tickets mit confidence < X 
+automatisch in eine menschliche Review-Queue routen. Voraussetzung: 
+Kalibrierungs-Studie über ≥100 Tickets, da der aktuelle 
+Confidence-Wert nicht kalibriert ist. Standard-Pattern für 
+sicherheitsrelevante Enterprise-Builds.
+
 ---
 
 ## About this build
