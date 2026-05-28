@@ -1,15 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "WebhookInput",
-  "description": "Expected payload shape from the helpdesk when a new ticket arrives. This is the input contract — synthetic test tickets must match this shape.",
+  "description": "Expected payload shape from the helpdesk when a new ticket arrives. Synthetic and real test tickets must match this contract before processing.",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "ticket_id",
     "subject",
     "body",
-    "sender_email",
-    "customer_id",
     "customer_type",
     "customer_tier",
     "received_at",
@@ -18,48 +16,88 @@
   "properties": {
     "ticket_id": {
       "type": "string",
-      "description": "Helpdesk's unique identifier for this ticket. Format depends on helpdesk (e.g. 'TH-2026-04321')."
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z0-9._:-]+$",
+      "description": "Helpdesk's unique identifier for this ticket, e.g. TH-2026-04321."
     },
     "subject": {
       "type": "string",
+      "minLength": 1,
+      "maxLength": 300,
       "description": "Subject line of the ticket."
     },
     "body": {
       "type": "string",
+      "minLength": 1,
+      "maxLength": 10000,
       "description": "Full body text of the ticket. May contain newlines, mixed languages, and PII."
     },
     "sender_email": {
       "type": "string",
       "format": "email",
-      "description": "Email address of the person who filed the ticket."
+      "minLength": 3,
+      "maxLength": 320,
+      "description": "Email address of the person who filed the ticket, if available."
     },
     "sender_name": {
       "type": "string",
-      "description": "Name of the sender if provided. Optional in payload — but kept here for completeness."
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Name of the sender if provided."
     },
     "customer_id": {
       "type": "string",
-      "description": "Foreign key to the helpdesk's customer record."
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Foreign key to the helpdesk customer record if available."
     },
     "customer_type": {
       "type": "string",
       "enum": ["private", "business"],
-      "description": "B2C private individual or B2B business customer (e.g. Hausverwaltung). Used for tier weighting and governance scoping."
+      "description": "B2C private individual or B2B business customer."
     },
     "customer_tier": {
       "type": "string",
       "enum": ["A", "B", "C"],
-      "description": "Customer importance tier from the helpdesk's CRM. A = strategic/high-value, B = standard, C = low-volume. Used as deterministic multiplier in priority calculation."
+      "description": "Customer importance tier from CRM."
     },
     "received_at": {
       "type": "string",
       "format": "date-time",
-      "description": "ISO 8601 timestamp of when the helpdesk received the ticket."
+      "minLength": 20,
+      "description": "ISO 8601 timestamp of ticket receipt."
     },
     "channel": {
       "type": "string",
       "enum": ["email", "webform", "phone_transcript", "chat"],
       "description": "Channel through which the ticket arrived."
+    },
+    "language": {
+      "type": "string",
+      "enum": ["de", "en", "other", "unknown"],
+      "description": "Primary language if known."
+    },
+    "property_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000,
+      "description": "Number of affected properties if known."
+    },
+    "building_type": {
+      "type": "string",
+      "enum": ["single_family", "multi_family", "commercial", "mixed_use", "unknown"],
+      "description": "Building type if known."
+    },
+    "occupant_flags": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "string",
+        "enum": ["elderly", "child_present", "medical_need", "mobility_limited", "unknown"]
+      },
+      "uniqueItems": true,
+      "description": "Optional occupancy or vulnerability hints if captured upstream."
     }
   }
 }

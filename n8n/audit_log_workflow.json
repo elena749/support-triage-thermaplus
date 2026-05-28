@@ -1,0 +1,90 @@
+{
+  "name": "Audit Log",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "=={{ {\n  \"executionId\": $json.body.executionId,\n  \"ticketId\": $json.body.ticketId,\n  \"audit_logged\": $json.body.audit_logged,\n  \"message\": $json.body.message,\n  \"eventType\": $json.body.eventType,\n  \"timestamp\": $json.body.timestamp\n} }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        336,
+        96
+      ],
+      "id": "26cbcf71-687d-4453-9c35-d8138b7d73ca",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "audit-log",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        112,
+        96
+      ],
+      "id": "b448d798-9076-42ed-8c65-2e5d2d722953",
+      "name": "Webhook",
+      "webhookId": "c48eb4db-d61c-4d43-bbb9-5e72c1742dbd"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, received: $json } }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        560,
+        96
+      ],
+      "id": "3aa6c513-88ca-43b7-9123-c56938cbbf61",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "859e85d0-fb40-4183-b1f0-42eae31e72a1",
+  "meta": {
+    "instanceId": "7aac6b05a500e6a99c38dc08510fff4a36f31093ac7c99f5ef94722feb14c3d4"
+  },
+  "id": "KOLi7Ez0lWSXDCdr",
+  "tags": []
+}
