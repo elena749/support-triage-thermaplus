@@ -123,3 +123,45 @@ Phase / What I tried / What broke / Root cause / Fix or mitigation / Generalizes
 **Fix:** Enabled "Retry on Fail" on the Sheets Append node in n8n (3 tries, 2000ms wait between). Mitigation lives at the failure point, the Sheets node, rather than prophylactically in the caller (the bash script). Re-sent ticket 30 individually; passed.
 
 **Generalizes to:** "It worked at low volume" is not evidence a pipeline is safe. Rate limits, throttling, and transient API errors surface only under load: they are invisible during single-ticket development. Any external-service write needs an explicit retry policy as a default, not as an optimization. Smoke tests deceive when the real risk is volume-dependent.
+
+2026-05-28 — Webhook input contract was too narrow for downstream business logic
+
+Phase: BUILD
+What I tried: Tested the support-triage webhook with a minimal payload containing only the obvious customer message fields.
+What broke: The deterministic scoring node failed because customer_tier and received_at were missing, even though extraction and scoring had already succeeded.
+Root cause: I had implicitly moved business-context fields out of the input contract, but the downstream priority calculation still depended on them.
+Fix or mitigation: Put customer_tier, received_at, and related business-context fields back into the webhook contract and validate them explicitly at the input stage.
+Generalizes to: Business logic should not depend on fields that are only “sometimes present.” If a field is required for routing, scoring, or compliance, it belongs in the input contract and should fail early when absent.
+2026-05-28 — LLM output wrapper caused field lookups to fail
+
+Phase: BUILD
+What I tried: Read scoring output directly from the Code node input as if it were the parsed object.
+What broke: The code node threw Unknown severity value: undefined because the actual fields were nested inside output[0].content[0].text.
+Root cause: The Responses API returned a wrapper envelope around the schema output, and the code assumed the payload lived at the root.
+Fix or mitigation: Update the code node to read the nested text object explicitly before applying deterministic logic.
+Generalizes to: Schema validation does not eliminate response-shape handling. Integration code still has to navigate provider-specific envelopes correctly.
+2026-05-28 — False-path validation revealed response branching was incomplete
+
+Phase: BUILD
+What I tried: Triggered the invalid-input branch on purpose using an incomplete webhook payload.
+What broke: The false path had not yet been verified, so the workflow risked returning a default response instead of a deliberate error payload.
+Root cause: I had validated the success path first and only later checked whether the failure branch actually produced a response.
+Fix or mitigation: Test the false branch explicitly with a missing-field payload and confirm the Respond to Webhook node returns a 422 with structured validation errors.
+Generalizes to: A workflow is not production-safe until both success and failure branches are exercised. “Happy path works” is not enough for webhook systems.
+2026-05-28 — Success path returned empty because response node was missing after scoring
+
+Phase: BUILD
+What I tried: Ran the workflow after scoring succeeded, expecting the webhook to return the result automatically.
+What broke: The workflow returned HTTP 200 with an empty body.
+Root cause: The success branch reached the scoring node, but there was no final response node on that path, so n8n fell back to a default empty 200 response.
+Fix or mitigation: Add an explicit final response node after the success branch, or normalize the output first and then respond from that node.
+Generalizes to: In webhook workflows, execution success and response success are separate concerns. A workflow can complete internally while still failing to return useful output to the caller.
+One more strong lesson
+2026-05-28 — The input contract drifted while iterating
+
+Phase: BUILD
+What I tried: Simplified the test payload during debugging to focus on the ticket text.
+What broke: The workflow became less robust because the business fields needed later were no longer present in the payload.
+Root cause: Debugging convenience accidentally changed the shape of the real contract.
+Fix or mitigation: Keep the full contract in the webhook payload, and use separate test cases to verify missing-field behavior instead of shrinking the canonical input.
+Generalizes to: Debug payloads are not the same thing as production contracts. If you test with reduced input, you must still preserve the real required fields somewhere in the workflow design.

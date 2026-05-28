@@ -42,3 +42,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com).
 
 ### Verified
 - End-to-end pipeline run: Müller emergency ticket (heating off, two children, Tier C, heating season) classified as critical, final_priority 5.6.
+
+## v2.1 — 2026-05-28
+- Replaced sub-workflow audit log with webhook-based architecture
+- Fixed validator/schema drift (`missing_message` → `missing_body`)
+- Fixed pipeline data flow: Edit Fields1 now reads via source-node naming
