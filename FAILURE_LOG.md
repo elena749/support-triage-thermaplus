@@ -165,3 +165,43 @@ What broke: The workflow became less robust because the business fields needed l
 Root cause: Debugging convenience accidentally changed the shape of the real contract.
 Fix or mitigation: Keep the full contract in the webhook payload, and use separate test cases to verify missing-field behavior instead of shrinking the canonical input.
 Generalizes to: Debug payloads are not the same thing as production contracts. If you test with reduced input, you must still preserve the real required fields somewhere in the workflow design.
+
+## 2026-05-28T11:08 — Subworkflow Webhook Refactor
+
+**Phase:** Refactor (architecture)
+**What I tried:** I used n8n's Execute Sub-workflow in the parent and When Executed by Another Workflow in the child to modularize the audit log flow. I expected the parent to hand off the payload, wait for completion, and receive a clean child result back.
+**What broke:** The parent often stayed running while the child showed no usable completion state or returned inconsistent output. The execution path became hard to reason about and hard to debug reliably.
+**Root cause:** The most likely cause was instability in n8n's sub-workflow handoff/return path rather than in the audit logic itself. This is consistent with community reports about edge cases in sub-workflow execution and output propagation. I did not isolate a single definitive defect — keeping that honest matters more than a false root-cause attribution. In practice, the pattern introduced a vendor-specific control path that was harder to observe than a plain request/response boundary.
+**Fix:** I replaced the sub-workflow coupling with a standard Webhook + HTTP Request pattern, so the audit logger became a separately callable workflow with an explicit request and response contract. This made the boundary testable and easier to debug step by step.
+**Generalizes to:** When the trade-off is otherwise equal, prefer a widely understood protocol boundary over a platform-specific orchestration primitive because it improves observability, portability, and debugging.
+
+---
+
+## 2026-05-28T11:08 — Validator Schema Drift
+
+**Phase:** Debugging
+**What I tried:** I tested the webhook with a cURL payload that included ticket data. I expected the runtime validation behavior to match what the schema file declared.
+**What broke:** The webhook input looked valid from one layer's perspective and invalid from another. The schema referenced `body`, while the validation logic was checking `payload.message`. That produced confusing output and false-negative validation behavior.
+**Root cause:** The schema definition and the runtime validator drifted apart, so the declared contract and the executed contract were no longer the same. n8n webhook handling is sensitive to where the payload actually lives, such as `$json.body`, so validating against the wrong path creates exactly this kind of mismatch.
+**Fix:** I aligned the validator JavaScript code with the schema file. Specifically, I replaced `payload.message` references with `payload.body` and added enum and required-field checks for `customer_type`, `channel`, and `customer_id` that the schema declared but the validator did not enforce.
+**Generalizes to:** A schema only helps if runtime validation reads from the exact same source of truth; otherwise the contract exists in documentation but not in execution.
+
+---
+
+## 2026-05-28T11:08 — Pipeline Data Path Bug
+
+**Phase:** Debugging
+**What I tried:** I expected fields like `ticket_id` to remain available after downstream service nodes, and I referenced them again later in Edit Fields1. I ran the pipeline through the audit HTTP request and sheet append steps assuming the original item data would still be intact.
+**What broke:** `ticket_id` came back as `null` in Edit Fields1 even though it existed earlier in the flow. The service nodes returned their own payloads, which displaced the item shape I was still trying to reference downstream.
+**Root cause:** The pipeline treated service-node responses as if they were passive pass-through steps, but nodes like HTTP Request and Sheet append can replace or reshape the active item with their own response data. Community guidance around combining prior data with HTTP results points to this exact failure mode when earlier context is not preserved explicitly.
+**Fix:** In Edit Fields1 (which runs after the HTTP and Sheet nodes), I replaced direct references like `{{ $json.ticket_id }}` with source-node references like `{{ $('Normalize Final Record').item.json.ticket_id }}`. This bypasses the service-node-overwritten item and reads directly from the source node's output by name.
+**Generalizes to:** In workflow systems, service nodes are not neutral transport layers; if a field matters later, preserve it explicitly or reference it from the source node by name before any node that can replace the active item.
+
+## 2026-05-30THH:MM — Iterated Before Establishing Measurement Resolution
+
+**Phase:** Evaluation methodology
+**What I tried:** I iterated the scoring prompt v1→v2 (added Authority Hierarchy, few-shot, sharpened definitions) and measured the result as +3.3pp (76.7% → 80.0%) on a single run over 30 tickets.
+**What broke:** I declared v2 an improvement before knowing whether my measurement could even resolve a difference that small. At n=30, one ticket equals 3.3pp — the entire claimed improvement was a single ticket, well within the noise floor of a non-byte-deterministic model at temperature 0.
+**Root cause:** I optimized before establishing measurement resolution. I treated a single run as ground truth when LLM outputs vary run-to-run even at T=0 (TH-04535 demonstrated this directly).
+**Fix:** Multi-run eval (5 runs per version) to quantify variance, and honest reframing of n=30 as a coverage eval, not a production-grade comparison. Test-set expansion to n≥100 deferred to a later iteration / Build 2 foundation.
+**Generalizes to:** Establish measurement resolution before iterating. If one test item moves the metric more than the improvement you're claiming, your eval cannot resolve the change — measurement design must precede optimization, not follow it.

@@ -79,7 +79,40 @@ Same test set. Prompt changes: added an Authority Hierarchy section (objective s
 | **high**     | 0   | 2      | 7    | 0        |
 | **critical** | 0   | 0      | 0    | 4        |
 
-**Honest reading.** v2 fixed exactly one of seven v1 failures (TH-04559, angry customer with no functional emergency). The other six persist with reasoning patterns close to v1. For at least one of these (TH-04535), an isolated single-ticket test produced the correct `high` answer while the same prompt in batch produced `medium`. Same prompt, same temperature=0, different output: a reminder that LLM outputs are not byte-deterministic at T=0, and that prompt-level mitigations have diminishing returns where the model holds a strong learned prior. n=1 evaluation cannot distinguish weak mitigation from inherent variance. Credible before/after needs multi-run eval (mean ± stddev), not point estimates.
+**Honest reading.** v2 fixed exactly one of seven v1 failures (TH-04559, angry customer with no functional emergency). The other six persist with reasoning patterns close to v1. For at least one of these (TH-04535), an isolated single-ticket test produced the correct `high` answer while the same prompt in batch produced `medium`. Same prompt, same temperature=0, different output: a reminder that LLM outputs are not byte-deterministic at T=0, and that prompt-level mitigations have diminishing returns where the model holds a strong learned prior. n=1 evaluation cannot distinguish weak mitigation from inherent variance. This gap is now closed — see Multi-run evaluation below, which confirms the v1→v2 improvement is real (+14pp, non-overlapping ranges) and reveals that the single-run v1 figure was an optimistic outlier.
+
+### Multi-run evaluation (31 May 2026)
+
+The single-run v1/v2 comparison above (5 May) used n=1 per version. Because 
+LLMs are not byte-deterministic even at temperature 0, a single run is one 
+sample from a distribution, not a fixed score. To test whether the v1→v2 
+improvement was real or noise, I re-ran each scoring prompt 5× over the same 
+30 tickets via the OpenAI Chat Completions API (gpt-4.1-mini, temperature 0).
+
+| Version | Mean Accuracy | Stddev | Range        | Runs                          |
+|---------|---------------|--------|--------------|-------------------------------|
+| v1      | 64.0%         | ±2.8%  | 61.2–66.8%   | 66.7 / 63.3 / 66.7 / 60.0 / 63.3 |
+| v2      | 78.0%         | ±3.8%  | 74.2–81.8%   | 83.3 / 76.7 / 80.0 / 76.7 / 73.3 |
+
+**The ranges do not overlap.** v2's +14pp advantage is robust across runs, 
+not measurement noise — the prompt engineering (Authority Hierarchy, few-shot, 
+sharpened definitions) has a real, measurable effect.
+
+**Two honest caveats:**
+
+1. **The single-run figures over-estimated v1.** The 5 May v1 run showed 76.7%; 
+   the 5-run mean is 64.0%. That original run landed high in the distribution. 
+   This is the core lesson: n=1 can mislead in either direction — inflating a 
+   weak baseline and shrinking a real effect (the naive gap looked like +3.3pp; 
+   the real gap is +14pp).
+
+2. **Two different measurement setups.** The 5 May runs went through the n8n 
+   workflow (OpenAI Responses API); the multi-run used the Chat Completions API 
+   directly. The absolute numbers are not directly comparable across setups — 
+   the v1/v2 comparison is valid because both used identical setups within each 
+   measurement. The absolute level shift (v1 76.7%→64.0%) may also reflect a 
+   silent model update behind the undated `gpt-4.1-mini` alias; production would 
+   pin to a dated model version for reproducibility.
 
 ---
 
@@ -114,7 +147,7 @@ Tickets contain PII: names, emails, phone numbers, addresses, sometimes payment 
 
 This is a v1+v2 demonstrator built over three days. The honest gap to production:
 
-**Evaluation rigor.** Multi-run eval with variance bounds (mean ± stddev over 3-5 runs per version). Test set from 30 to 100+ tickets to make subgroup statistics meaningful.
+**Evaluation rigor.** Multi-run eval with variance bounds is now done (see Multi-run evaluation above): 5 runs per version, mean ± stddev, overlap check. Still open: expanding the test set from 30 to 100+ tickets to make per-class subgroup statistics meaningful, and pinning to a dated model version (`gpt-4.1-mini-YYYY-MM-DD`) instead of the undated alias for reproducibility.
 
 **Mitigations for v3.** Two-stage verification (a second LLM pass critiques the first against the rules) for failure patterns where prompt-only does not stick. Dynamic few-shot retrieval (top 1-2 examples per ticket, not three static ones). Confidence-threshold routing once confidence values are calibrated.
 

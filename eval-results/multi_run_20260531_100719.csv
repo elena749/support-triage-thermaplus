@@ -1,0 +1,301 @@
+version,run,ticket_id,predicted,expected,correct,edge_case
+v1,1,TH-2026-04321,critical,critical,1,vulnerable_household (children mentioned; in heating season)
+v1,1,TH-2026-04532,low,low,1,customer_number_vs_order_id
+v1,1,TH-2026-04533,medium,high,0,noise_diagnosis
+v1,1,TH-2026-04534,high,high,1,multi_property_business_tier_a
+v1,1,TH-2026-04535,medium,high,0,calmly_critical
+v1,1,TH-2026-04536,critical,critical,1,mixed_language
+v1,1,TH-2026-04537,low,low,1,prompt_injection
+v1,1,TH-2026-04538,critical,critical,1,safety_signal_clear_critical
+v1,1,TH-2026-04539,medium,high,0,multi_intent
+v1,1,TH-2026-04540,low,medium,0,partial_failure_outside_season (ein Heizkörper kalt; Mai; weniger akut)
+v1,1,TH-2026-04541,high,high,1,warranty_within_period
+v1,1,TH-2026-04542,low,low,1,wrong_channel
+v1,1,TH-2026-04543,medium,medium,1,empty_sparse
+v1,1,TH-2026-04544,low,low,1,false_urgency
+v1,1,TH-2026-04545,medium,high,0,broken_german_third_party
+v1,1,TH-2026-04546,low,medium,0,delayed_maintenance
+v1,1,TH-2026-04547,high,high,1,legal_pressure
+v1,1,TH-2026-04548,high,high,1,technical_error_code
+v1,1,TH-2026-04549,low,low,1,straightforward_english_low_severity
+v1,1,TH-2026-04550,low,medium,0,business_english_billing
+v1,1,TH-2026-04551,low,low,1,panic_but_cosmetic
+v1,1,TH-2026-04552,medium,medium,1,quietly_degraded
+v1,1,TH-2026-04553,low,low,1,english_b2b_quote
+v1,1,TH-2026-04554,high,critical,0,vulnerable_renter (pregnancy overrides season)
+v1,1,TH-2026-04555,low,low,1,routine_confirmation
+v1,1,TH-2026-04556,high,high,1,business_multi_property_subset
+v1,1,TH-2026-04557,low,medium,0,mixed_language_routine
+v1,1,TH-2026-04558,low,low,1,general_inquiry_no_action
+v1,1,TH-2026-04559,low,medium,0,angry_customer_no_emergency
+v1,1,TH-2026-04560,medium,medium,1,ambiguous_severity
+v1,2,TH-2026-04321,critical,critical,1,vulnerable_household (children mentioned; in heating season)
+v1,2,TH-2026-04532,low,low,1,customer_number_vs_order_id
+v1,2,TH-2026-04533,medium,high,0,noise_diagnosis
+v1,2,TH-2026-04534,high,high,1,multi_property_business_tier_a
+v1,2,TH-2026-04535,medium,high,0,calmly_critical
+v1,2,TH-2026-04536,critical,critical,1,mixed_language
+v1,2,TH-2026-04537,low,low,1,prompt_injection
+v1,2,TH-2026-04538,critical,critical,1,safety_signal_clear_critical
+v1,2,TH-2026-04539,medium,high,0,multi_intent
+v1,2,TH-2026-04540,low,medium,0,partial_failure_outside_season (ein Heizkörper kalt; Mai; weniger akut)
+v1,2,TH-2026-04541,high,high,1,warranty_within_period
+v1,2,TH-2026-04542,low,low,1,wrong_channel
+v1,2,TH-2026-04543,medium,medium,1,empty_sparse
+v1,2,TH-2026-04544,low,low,1,false_urgency
+v1,2,TH-2026-04545,medium,high,0,broken_german_third_party
+v1,2,TH-2026-04546,low,medium,0,delayed_maintenance
+v1,2,TH-2026-04547,medium,high,0,legal_pressure
+v1,2,TH-2026-04548,high,high,1,technical_error_code
+v1,2,TH-2026-04549,low,low,1,straightforward_english_low_severity
+v1,2,TH-2026-04550,low,medium,0,business_english_billing
+v1,2,TH-2026-04551,low,low,1,panic_but_cosmetic
+v1,2,TH-2026-04552,medium,medium,1,quietly_degraded
+v1,2,TH-2026-04553,low,low,1,english_b2b_quote
+v1,2,TH-2026-04554,high,critical,0,vulnerable_renter (pregnancy overrides season)
+v1,2,TH-2026-04555,low,low,1,routine_confirmation
+v1,2,TH-2026-04556,high,high,1,business_multi_property_subset
+v1,2,TH-2026-04557,low,medium,0,mixed_language_routine
+v1,2,TH-2026-04558,low,low,1,general_inquiry_no_action
+v1,2,TH-2026-04559,low,medium,0,angry_customer_no_emergency
+v1,2,TH-2026-04560,medium,medium,1,ambiguous_severity
+v1,3,TH-2026-04321,critical,critical,1,vulnerable_household (children mentioned; in heating season)
+v1,3,TH-2026-04532,low,low,1,customer_number_vs_order_id
+v1,3,TH-2026-04533,medium,high,0,noise_diagnosis
+v1,3,TH-2026-04534,high,high,1,multi_property_business_tier_a
+v1,3,TH-2026-04535,medium,high,0,calmly_critical
+v1,3,TH-2026-04536,critical,critical,1,mixed_language
+v1,3,TH-2026-04537,low,low,1,prompt_injection
+v1,3,TH-2026-04538,critical,critical,1,safety_signal_clear_critical
+v1,3,TH-2026-04539,medium,high,0,multi_intent
+v1,3,TH-2026-04540,low,medium,0,partial_failure_outside_season (ein Heizkörper kalt; Mai; weniger akut)
+v1,3,TH-2026-04541,high,high,1,warranty_within_period
+v1,3,TH-2026-04542,low,low,1,wrong_channel
+v1,3,TH-2026-04543,medium,medium,1,empty_sparse
+v1,3,TH-2026-04544,low,low,1,false_urgency
+v1,3,TH-2026-04545,medium,high,0,broken_german_third_party
+v1,3,TH-2026-04546,low,medium,0,delayed_maintenance
+v1,3,TH-2026-04547,medium,high,0,legal_pressure
+v1,3,TH-2026-04548,high,high,1,technical_error_code
+v1,3,TH-2026-04549,low,low,1,straightforward_english_low_severity
+v1,3,TH-2026-04550,low,medium,0,business_english_billing
+v1,3,TH-2026-04551,low,low,1,panic_but_cosmetic
+v1,3,TH-2026-04552,medium,medium,1,quietly_degraded
+v1,3,TH-2026-04553,low,low,1,english_b2b_quote
+v1,3,TH-2026-04554,critical,critical,1,vulnerable_renter (pregnancy overrides season)
+v1,3,TH-2026-04555,low,low,1,routine_confirmation
+v1,3,TH-2026-04556,high,high,1,business_multi_property_subset
+v1,3,TH-2026-04557,low,medium,0,mixed_language_routine
+v1,3,TH-2026-04558,low,low,1,general_inquiry_no_action
+v1,3,TH-2026-04559,low,medium,0,angry_customer_no_emergency
+v1,3,TH-2026-04560,medium,medium,1,ambiguous_severity
+v1,4,TH-2026-04321,critical,critical,1,vulnerable_household (children mentioned; in heating season)
+v1,4,TH-2026-04532,low,low,1,customer_number_vs_order_id
+v1,4,TH-2026-04533,medium,high,0,noise_diagnosis
+v1,4,TH-2026-04534,high,high,1,multi_property_business_tier_a
+v1,4,TH-2026-04535,medium,high,0,calmly_critical
+v1,4,TH-2026-04536,critical,critical,1,mixed_language
+v1,4,TH-2026-04537,low,low,1,prompt_injection
+v1,4,TH-2026-04538,critical,critical,1,safety_signal_clear_critical
+v1,4,TH-2026-04539,medium,high,0,multi_intent
+v1,4,TH-2026-04540,low,medium,0,partial_failure_outside_season (ein Heizkörper kalt; Mai; weniger akut)
+v1,4,TH-2026-04541,high,high,1,warranty_within_period
+v1,4,TH-2026-04542,low,low,1,wrong_channel
+v1,4,TH-2026-04543,medium,medium,1,empty_sparse
+v1,4,TH-2026-04544,low,low,1,false_urgency
+v1,4,TH-2026-04545,medium,high,0,broken_german_third_party
+v1,4,TH-2026-04546,low,medium,0,delayed_maintenance
+v1,4,TH-2026-04547,medium,high,0,legal_pressure
+v1,4,TH-2026-04548,medium,high,0,technical_error_code
+v1,4,TH-2026-04549,low,low,1,straightforward_english_low_severity
+v1,4,TH-2026-04550,low,medium,0,business_english_billing
+v1,4,TH-2026-04551,low,low,1,panic_but_cosmetic
+v1,4,TH-2026-04552,medium,medium,1,quietly_degraded
+v1,4,TH-2026-04553,low,low,1,english_b2b_quote
+v1,4,TH-2026-04554,high,critical,0,vulnerable_renter (pregnancy overrides season)
+v1,4,TH-2026-04555,low,low,1,routine_confirmation
+v1,4,TH-2026-04556,high,high,1,business_multi_property_subset
+v1,4,TH-2026-04557,low,medium,0,mixed_language_routine
+v1,4,TH-2026-04558,low,low,1,general_inquiry_no_action
+v1,4,TH-2026-04559,low,medium,0,angry_customer_no_emergency
+v1,4,TH-2026-04560,medium,medium,1,ambiguous_severity
+v1,5,TH-2026-04321,critical,critical,1,vulnerable_household (children mentioned; in heating season)
+v1,5,TH-2026-04532,low,low,1,customer_number_vs_order_id
+v1,5,TH-2026-04533,medium,high,0,noise_diagnosis
+v1,5,TH-2026-04534,high,high,1,multi_property_business_tier_a
+v1,5,TH-2026-04535,medium,high,0,calmly_critical
+v1,5,TH-2026-04536,critical,critical,1,mixed_language
+v1,5,TH-2026-04537,low,low,1,prompt_injection
+v1,5,TH-2026-04538,critical,critical,1,safety_signal_clear_critical
+v1,5,TH-2026-04539,medium,high,0,multi_intent
+v1,5,TH-2026-04540,low,medium,0,partial_failure_outside_season (ein Heizkörper kalt; Mai; weniger akut)
+v1,5,TH-2026-04541,high,high,1,warranty_within_period
+v1,5,TH-2026-04542,low,low,1,wrong_channel
+v1,5,TH-2026-04543,medium,medium,1,empty_sparse
+v1,5,TH-2026-04544,low,low,1,false_urgency
+v1,5,TH-2026-04545,medium,high,0,broken_german_third_party
+v1,5,TH-2026-04546,low,medium,0,delayed_maintenance
+v1,5,TH-2026-04547,high,high,1,legal_pressure
+v1,5,TH-2026-04548,medium,high,0,technical_error_code
+v1,5,TH-2026-04549,low,low,1,straightforward_english_low_severity
+v1,5,TH-2026-04550,low,medium,0,business_english_billing
+v1,5,TH-2026-04551,low,low,1,panic_but_cosmetic
+v1,5,TH-2026-04552,medium,medium,1,quietly_degraded
+v1,5,TH-2026-04553,low,low,1,english_b2b_quote
+v1,5,TH-2026-04554,high,critical,0,vulnerable_renter (pregnancy overrides season)
+v1,5,TH-2026-04555,low,low,1,routine_confirmation
+v1,5,TH-2026-04556,high,high,1,business_multi_property_subset
+v1,5,TH-2026-04557,low,medium,0,mixed_language_routine
+v1,5,TH-2026-04558,low,low,1,general_inquiry_no_action
+v1,5,TH-2026-04559,low,medium,0,angry_customer_no_emergency
+v1,5,TH-2026-04560,medium,medium,1,ambiguous_severity
+v2,1,TH-2026-04321,critical,critical,1,vulnerable_household (children mentioned; in heating season)
+v2,1,TH-2026-04532,low,low,1,customer_number_vs_order_id
+v2,1,TH-2026-04533,high,high,1,noise_diagnosis
+v2,1,TH-2026-04534,high,high,1,multi_property_business_tier_a
+v2,1,TH-2026-04535,high,high,1,calmly_critical
+v2,1,TH-2026-04536,critical,critical,1,mixed_language
+v2,1,TH-2026-04537,low,low,1,prompt_injection
+v2,1,TH-2026-04538,critical,critical,1,safety_signal_clear_critical
+v2,1,TH-2026-04539,high,high,1,multi_intent
+v2,1,TH-2026-04540,low,medium,0,partial_failure_outside_season (ein Heizkörper kalt; Mai; weniger akut)
+v2,1,TH-2026-04541,high,high,1,warranty_within_period
+v2,1,TH-2026-04542,low,low,1,wrong_channel
+v2,1,TH-2026-04543,medium,medium,1,empty_sparse
+v2,1,TH-2026-04544,medium,low,0,false_urgency
+v2,1,TH-2026-04545,high,high,1,broken_german_third_party
+v2,1,TH-2026-04546,medium,medium,1,delayed_maintenance
+v2,1,TH-2026-04547,medium,high,0,legal_pressure
+v2,1,TH-2026-04548,high,high,1,technical_error_code
+v2,1,TH-2026-04549,low,low,1,straightforward_english_low_severity
+v2,1,TH-2026-04550,low,medium,0,business_english_billing
+v2,1,TH-2026-04551,low,low,1,panic_but_cosmetic
+v2,1,TH-2026-04552,medium,medium,1,quietly_degraded
+v2,1,TH-2026-04553,low,low,1,english_b2b_quote
+v2,1,TH-2026-04554,high,critical,0,vulnerable_renter (pregnancy overrides season)
+v2,1,TH-2026-04555,low,low,1,routine_confirmation
+v2,1,TH-2026-04556,high,high,1,business_multi_property_subset
+v2,1,TH-2026-04557,medium,medium,1,mixed_language_routine
+v2,1,TH-2026-04558,low,low,1,general_inquiry_no_action
+v2,1,TH-2026-04559,medium,medium,1,angry_customer_no_emergency
+v2,1,TH-2026-04560,medium,medium,1,ambiguous_severity
+v2,2,TH-2026-04321,critical,critical,1,vulnerable_household (children mentioned; in heating season)
+v2,2,TH-2026-04532,low,low,1,customer_number_vs_order_id
+v2,2,TH-2026-04533,high,high,1,noise_diagnosis
+v2,2,TH-2026-04534,high,high,1,multi_property_business_tier_a
+v2,2,TH-2026-04535,high,high,1,calmly_critical
+v2,2,TH-2026-04536,critical,critical,1,mixed_language
+v2,2,TH-2026-04537,low,low,1,prompt_injection
+v2,2,TH-2026-04538,critical,critical,1,safety_signal_clear_critical
+v2,2,TH-2026-04539,medium,high,0,multi_intent
+v2,2,TH-2026-04540,low,medium,0,partial_failure_outside_season (ein Heizkörper kalt; Mai; weniger akut)
+v2,2,TH-2026-04541,high,high,1,warranty_within_period
+v2,2,TH-2026-04542,low,low,1,wrong_channel
+v2,2,TH-2026-04543,medium,medium,1,empty_sparse
+v2,2,TH-2026-04544,medium,low,0,false_urgency
+v2,2,TH-2026-04545,high,high,1,broken_german_third_party
+v2,2,TH-2026-04546,medium,medium,1,delayed_maintenance
+v2,2,TH-2026-04547,medium,high,0,legal_pressure
+v2,2,TH-2026-04548,medium,high,0,technical_error_code
+v2,2,TH-2026-04549,low,low,1,straightforward_english_low_severity
+v2,2,TH-2026-04550,low,medium,0,business_english_billing
+v2,2,TH-2026-04551,low,low,1,panic_but_cosmetic
+v2,2,TH-2026-04552,medium,medium,1,quietly_degraded
+v2,2,TH-2026-04553,low,low,1,english_b2b_quote
+v2,2,TH-2026-04554,critical,critical,1,vulnerable_renter (pregnancy overrides season)
+v2,2,TH-2026-04555,low,low,1,routine_confirmation
+v2,2,TH-2026-04556,high,high,1,business_multi_property_subset
+v2,2,TH-2026-04557,medium,medium,1,mixed_language_routine
+v2,2,TH-2026-04558,medium,low,0,general_inquiry_no_action
+v2,2,TH-2026-04559,medium,medium,1,angry_customer_no_emergency
+v2,2,TH-2026-04560,medium,medium,1,ambiguous_severity
+v2,3,TH-2026-04321,critical,critical,1,vulnerable_household (children mentioned; in heating season)
+v2,3,TH-2026-04532,low,low,1,customer_number_vs_order_id
+v2,3,TH-2026-04533,high,high,1,noise_diagnosis
+v2,3,TH-2026-04534,high,high,1,multi_property_business_tier_a
+v2,3,TH-2026-04535,high,high,1,calmly_critical
+v2,3,TH-2026-04536,critical,critical,1,mixed_language
+v2,3,TH-2026-04537,low,low,1,prompt_injection
+v2,3,TH-2026-04538,critical,critical,1,safety_signal_clear_critical
+v2,3,TH-2026-04539,medium,high,0,multi_intent
+v2,3,TH-2026-04540,low,medium,0,partial_failure_outside_season (ein Heizkörper kalt; Mai; weniger akut)
+v2,3,TH-2026-04541,high,high,1,warranty_within_period
+v2,3,TH-2026-04542,low,low,1,wrong_channel
+v2,3,TH-2026-04543,medium,medium,1,empty_sparse
+v2,3,TH-2026-04544,medium,low,0,false_urgency
+v2,3,TH-2026-04545,high,high,1,broken_german_third_party
+v2,3,TH-2026-04546,medium,medium,1,delayed_maintenance
+v2,3,TH-2026-04547,high,high,1,legal_pressure
+v2,3,TH-2026-04548,medium,high,0,technical_error_code
+v2,3,TH-2026-04549,low,low,1,straightforward_english_low_severity
+v2,3,TH-2026-04550,medium,medium,1,business_english_billing
+v2,3,TH-2026-04551,low,low,1,panic_but_cosmetic
+v2,3,TH-2026-04552,medium,medium,1,quietly_degraded
+v2,3,TH-2026-04553,low,low,1,english_b2b_quote
+v2,3,TH-2026-04554,high,critical,0,vulnerable_renter (pregnancy overrides season)
+v2,3,TH-2026-04555,low,low,1,routine_confirmation
+v2,3,TH-2026-04556,high,high,1,business_multi_property_subset
+v2,3,TH-2026-04557,medium,medium,1,mixed_language_routine
+v2,3,TH-2026-04558,medium,low,0,general_inquiry_no_action
+v2,3,TH-2026-04559,medium,medium,1,angry_customer_no_emergency
+v2,3,TH-2026-04560,medium,medium,1,ambiguous_severity
+v2,4,TH-2026-04321,critical,critical,1,vulnerable_household (children mentioned; in heating season)
+v2,4,TH-2026-04532,low,low,1,customer_number_vs_order_id
+v2,4,TH-2026-04533,high,high,1,noise_diagnosis
+v2,4,TH-2026-04534,high,high,1,multi_property_business_tier_a
+v2,4,TH-2026-04535,high,high,1,calmly_critical
+v2,4,TH-2026-04536,critical,critical,1,mixed_language
+v2,4,TH-2026-04537,medium,low,0,prompt_injection
+v2,4,TH-2026-04538,critical,critical,1,safety_signal_clear_critical
+v2,4,TH-2026-04539,high,high,1,multi_intent
+v2,4,TH-2026-04540,low,medium,0,partial_failure_outside_season (ein Heizkörper kalt; Mai; weniger akut)
+v2,4,TH-2026-04541,high,high,1,warranty_within_period
+v2,4,TH-2026-04542,low,low,1,wrong_channel
+v2,4,TH-2026-04543,medium,medium,1,empty_sparse
+v2,4,TH-2026-04544,medium,low,0,false_urgency
+v2,4,TH-2026-04545,high,high,1,broken_german_third_party
+v2,4,TH-2026-04546,medium,medium,1,delayed_maintenance
+v2,4,TH-2026-04547,medium,high,0,legal_pressure
+v2,4,TH-2026-04548,medium,high,0,technical_error_code
+v2,4,TH-2026-04549,low,low,1,straightforward_english_low_severity
+v2,4,TH-2026-04550,medium,medium,1,business_english_billing
+v2,4,TH-2026-04551,low,low,1,panic_but_cosmetic
+v2,4,TH-2026-04552,medium,medium,1,quietly_degraded
+v2,4,TH-2026-04553,low,low,1,english_b2b_quote
+v2,4,TH-2026-04554,high,critical,0,vulnerable_renter (pregnancy overrides season)
+v2,4,TH-2026-04555,low,low,1,routine_confirmation
+v2,4,TH-2026-04556,high,high,1,business_multi_property_subset
+v2,4,TH-2026-04557,medium,medium,1,mixed_language_routine
+v2,4,TH-2026-04558,medium,low,0,general_inquiry_no_action
+v2,4,TH-2026-04559,medium,medium,1,angry_customer_no_emergency
+v2,4,TH-2026-04560,medium,medium,1,ambiguous_severity
+v2,5,TH-2026-04321,critical,critical,1,vulnerable_household (children mentioned; in heating season)
+v2,5,TH-2026-04532,low,low,1,customer_number_vs_order_id
+v2,5,TH-2026-04533,high,high,1,noise_diagnosis
+v2,5,TH-2026-04534,high,high,1,multi_property_business_tier_a
+v2,5,TH-2026-04535,high,high,1,calmly_critical
+v2,5,TH-2026-04536,critical,critical,1,mixed_language
+v2,5,TH-2026-04537,low,low,1,prompt_injection
+v2,5,TH-2026-04538,critical,critical,1,safety_signal_clear_critical
+v2,5,TH-2026-04539,medium,high,0,multi_intent
+v2,5,TH-2026-04540,low,medium,0,partial_failure_outside_season (ein Heizkörper kalt; Mai; weniger akut)
+v2,5,TH-2026-04541,high,high,1,warranty_within_period
+v2,5,TH-2026-04542,low,low,1,wrong_channel
+v2,5,TH-2026-04543,medium,medium,1,empty_sparse
+v2,5,TH-2026-04544,medium,low,0,false_urgency
+v2,5,TH-2026-04545,high,high,1,broken_german_third_party
+v2,5,TH-2026-04546,medium,medium,1,delayed_maintenance
+v2,5,TH-2026-04547,medium,high,0,legal_pressure
+v2,5,TH-2026-04548,medium,high,0,technical_error_code
+v2,5,TH-2026-04549,low,low,1,straightforward_english_low_severity
+v2,5,TH-2026-04550,low,medium,0,business_english_billing
+v2,5,TH-2026-04551,low,low,1,panic_but_cosmetic
+v2,5,TH-2026-04552,medium,medium,1,quietly_degraded
+v2,5,TH-2026-04553,low,low,1,english_b2b_quote
+v2,5,TH-2026-04554,high,critical,0,vulnerable_renter (pregnancy overrides season)
+v2,5,TH-2026-04555,low,low,1,routine_confirmation
+v2,5,TH-2026-04556,high,high,1,business_multi_property_subset
+v2,5,TH-2026-04557,medium,medium,1,mixed_language_routine
+v2,5,TH-2026-04558,medium,low,0,general_inquiry_no_action
+v2,5,TH-2026-04559,medium,medium,1,angry_customer_no_emergency
+v2,5,TH-2026-04560,medium,medium,1,ambiguous_severity
