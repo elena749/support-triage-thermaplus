@@ -14,6 +14,24 @@
 
 ---
 
+## What v2.1 implements vs. what is deferred to v3
+
+This is an honest scope split so the spec and the running workflow don't disagree. SCOPE.md and ADR-003/ADR-004 are the authoritative source; this list is the reader-facing summary.
+
+**Implemented in v2.1:**
+- Authenticated inbound webhook (n8n header-auth credential — callers must send the configured auth header).
+- Input validation → two-LLM pipeline (extraction + severity scoring), both gated by strict JSON Schema output.
+- Deterministic priority computed in code: `final_priority = severity × tier × season`.
+- One deterministic safety rule: `critical` severity (incl. gas/safety signals) → `routing_state: human_review_mandatory`; everything else → `auto_accepted`. The safety-critical path is enforced in code, not left to the LLM.
+- Results written to a Google Sheet review surface; per-run metadata (`workflow_version`, ticket id, final priority) recorded in n8n execution data.
+
+**Deferred to v3 (ambitions, not yet built):**
+- **Full routing tiers and the remaining mandatory-review triggers** (low confidence, missing/contradictory fields, prompt-injection, etc.). *Why: the remaining triggers need calibrated confidence and contradiction detection that don't exist yet. v2.1 ships only the safety-critical rule above.*
+- **Structured audit persistence.** *Why: the audit-log workflow currently echoes its payload without storing it; durable persistence needs a real datastore (Postgres) and a retention policy, scoped for v3.*
+- **Full output contract** — `intent`, `extracted_facts`, `reason_summary`, `prompt_version`, `model_version`. *Why: the extractor's facts are not yet merged into the final record; the storage and explainability surface for these is v3 work.*
+
+---
+
 ## Why a customer would care
 
 In 2026, customer expectations of support response times have shifted. AI has trained users to expect immediate, accurate answers, and a 24-hour first-response window now reads as broken. Mittelstand support teams have not scaled headcount to match.
@@ -98,6 +116,21 @@ improvement was real or noise, I re-ran each scoring prompt 5× over the same
 not measurement noise — the prompt engineering (Authority Hierarchy, few-shot, 
 sharpened definitions) has a real, measurable effect.
 
+**Error direction matters more than the count.** Aggregated confusion matrices across all 5 runs (150 predictions per version) show *where* the gain came from:
+
+| True → Predicted | v1 | v2 | Δ |
+|------------------|----|----|----|
+| medium → low (error)    | 25 | 8  | −17 |
+| medium → medium (correct) | 15 | 32 | +17 |
+| high → medium (error)   | 25 | 11 | −14 |
+| high → high (correct)   | 20 | 34 | +14 |
+| low → medium (new error) | 0  | 10 | +10 |
+| critical (16/20 correct, 4→high) | — | unchanged | 0 |
+
+v1 errors are *all* one level too low — it systematically under-rates severity, the dangerous direction for triage (an urgent ticket waits behind a routine one). v2 largely fixes this (medium and high recognition both +17/+14 correct), at the cost of a smaller over-rating of low tickets (+10 low→medium). Erring upward is operationally safer than erring downward: at worst a human looks at a harmless ticket slightly early.
+
+**Critical stays stable but isn't perfect.** Both versions get 16/20 critical correct, with 4 rated `high` and *zero* dropped to medium/low. No critical ticket falls far. The 4 high-rated criticals would still be prioritized, but not flagged for immediate dispatch — a production candidate for a deterministic rule (safety signals force `critical` in code, not left to the LLM).
+
 **Two honest caveats:**
 
 1. **The single-run figures over-estimated v1.** The 5 May v1 run showed 76.7%; 
@@ -135,7 +168,7 @@ Median is essentially unchanged from v1 to v2 (+1%). p95 grew ~9%, max ~28%. The
 
 Tickets contain PII: names, emails, phone numbers, addresses, sometimes payment details. Two customer types in scope: B2C private individuals (full DSGVO/GDPR), and B2B Hausverwaltungen (B2B contractual data, but DSGVO still applies to any tenant data inside).
 
-**Data flow.** Tickets enter via authenticated webhook to n8n, get sent to the LLM provider (region and DPA terms depend on provider choice), and get stored in Google Sheets for v1. Production deployment requires EU-hosted storage and a signed DPA with the LLM provider. Logs containing ticket content must be access-controlled with bounded retention (proposed: 30 days, longer only with anonymization).
+**Data flow.** Tickets enter via an authenticated webhook to n8n — the inbound node uses an n8n header-auth credential, so callers must send the configured auth header or the request is rejected before any processing. The secret lives in n8n's credential store, not in this repo or the exported workflow JSON. Tickets are then sent to the LLM provider (region and DPA terms depend on provider choice), and stored in Google Sheets for v1. Production deployment requires EU-hosted storage and a signed DPA with the LLM provider. Logs containing ticket content must be access-controlled with bounded retention (proposed: 30 days, longer only with anonymization).
 
 **What a DPO would flag in v1:** full ticket content in logs, US-region LLM processing without explicit DPA, indefinite retention. All addressed in the roadmap.
 
@@ -151,7 +184,7 @@ This is a v1+v2 demonstrator built over three days. The honest gap to production
 
 **Mitigations for v3.** Two-stage verification (a second LLM pass critiques the first against the rules) for failure patterns where prompt-only does not stick. Dynamic few-shot retrieval (top 1-2 examples per ticket, not three static ones). Confidence-threshold routing once confidence values are calibrated.
 
-**Architecture & ops.** Webhook auth, retry on every external API call, monitoring (latency, error rate, severity distribution, drift), staging environment with rollback.
+**Architecture & ops.** Webhook auth is now in place (header-auth credential). Still open: retry on every external API call, monitoring (latency, error rate, severity distribution, drift), staging environment with rollback.
 
 **Compliance.** DPA with OpenAI and Google, audit trail, deletion policy, full GDPR review for real PII.
 

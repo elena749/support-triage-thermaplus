@@ -14,8 +14,12 @@ closed 4-value label space with an exact correct answer.
 
 PIPELINE PER TICKET: extraction call -> scoring call -> compare to ground truth.
 Evaluates the PROMPTS via the OpenAI API; bypasses n8n and the deterministic
-tier/season multiplier (identical across versions). Extraction prompt is the
-same for v1 and v2, so any delta is attributable to the scoring prompt.
+tier/season multiplier (identical across versions). v1 uses extraction_v1.txt;
+v2 uses extraction_v2.txt (which differs only by an injection-guard sentence,
+affecting only injection-style inputs), so the severity delta is still
+attributable to the scoring prompt. The scoring input mirrors the workflow's
+Assemble Scoring Input payload (extracted fields + business-context fields +
+in_heating_season + ticket_excerpt).
 """
 
 import os
@@ -109,16 +113,36 @@ def call_llm(client, system_prompt, user_content, schema, schema_name, max_token
     return json.loads(resp.choices[0].message.content)
 
 
+def is_heating_season(iso_date):
+    # Mirror of the workflow's Assemble Scoring Input node: heating season per
+    # German tenancy case law, Oct 1 - Apr 30.
+    if not iso_date:
+        return None
+    md = str(iso_date)[5:10]  # "MM-DD"
+    return md >= "10-01" or md <= "04-30"
+
+
 def run_one_ticket(client, ticket, extraction_prompt, scoring_prompt):
     extraction_user = (
         f"Process this ticket and extract structured fields.\n\n"
         f"ticket_id: {ticket['ticket_id']}\n"
         f"subject: {ticket['subject']}\n"
-        f"body:\n{ticket['body']}"
+        f"body:\n<ticket>\n{ticket['body']}\n</ticket>"
     )
     extracted = call_llm(client, extraction_prompt, extraction_user,
                          EXTRACTION_SCHEMA, "extraction_output", 2000)
-    scoring_user = f"Score the severity of this triaged ticket:\n\n{json.dumps(extracted, ensure_ascii=False, indent=2)}"
+    # Mirror the workflow's "Assemble Scoring Input" node: extracted fields +
+    # business-context fields from the original ticket + season flag + excerpt.
+    # Optional fields absent from the ticket are skipped, matching JSON.stringify
+    # dropping undefined keys in the node.
+    scoring_payload = dict(extracted)
+    for field in ("customer_type", "customer_tier", "property_count",
+                  "building_type", "occupant_flags", "received_at"):
+        if ticket.get(field) is not None:
+            scoring_payload[field] = ticket[field]
+    scoring_payload["in_heating_season"] = is_heating_season(ticket.get("received_at"))
+    scoring_payload["ticket_excerpt"] = "<ticket>" + (ticket.get("body") or "")[:1500] + "</ticket>"
+    scoring_user = f"Score the severity of this triaged ticket:\n\n{json.dumps(scoring_payload, ensure_ascii=False, indent=2)}"
     scored = call_llm(client, scoring_prompt, scoring_user,
                       SCORING_SCHEMA, "scoring_output", 500)
     return scored["severity"]
@@ -169,7 +193,8 @@ def main():
     with open(GROUND_TRUTH, "r", encoding="utf-8") as f:
         ground_truth = json.load(f)
     tickets = load_tickets()
-    extraction_prompt = load_prompt("extraction_v1.txt")
+    extraction_v1 = load_prompt("extraction_v1.txt")
+    extraction_v2 = load_prompt("extraction_v2.txt")
     scoring_v1 = load_prompt("scoring_v1.txt")
     scoring_v2 = load_prompt("scoring_v2.txt")
 
@@ -178,10 +203,10 @@ def main():
 
     rows = []
     print("=== Scoring v1 ===")
-    v1_acc, v1_stab = evaluate_version(client, "v1", scoring_v1, extraction_prompt,
+    v1_acc, v1_stab = evaluate_version(client, "v1", scoring_v1, extraction_v1,
                                        tickets, ground_truth, rows)
     print("\n=== Scoring v2 ===")
-    v2_acc, v2_stab = evaluate_version(client, "v2", scoring_v2, extraction_prompt,
+    v2_acc, v2_stab = evaluate_version(client, "v2", scoring_v2, extraction_v2,
                                        tickets, ground_truth, rows)
 
     print("\n" + "=" * 60)

@@ -5,6 +5,8 @@ Status: v2 scope accepted; v2.1 implementation partial. See DECISIONS.md ADR-004
 Version: v2-scope (drafted before v2.1; v2.1 covers a subset)
 Date: 2026-05-28
 
+Reconciliation note (2026-06-12): this document was drafted as full v2 scope. Several items it lists as required are deferred to v3 per ADR-003/ADR-004 — in particular the full routing-state machine, the full set of mandatory-review triggers, structured audit persistence, and the full output contract. Those items are tagged inline below as v3 scope. v2.1 implements a reduced subset (authenticated webhook, input validation, two-LLM pipeline, deterministic priority, and a single safety-critical routing rule). See README.md → "What v2.1 implements vs. what is deferred to v3".
+
 ## Purpose
 
 This system assists a support team by classifying and prioritizing incoming support tickets before human review.
@@ -27,15 +29,15 @@ Primary outcome:
 
 The v2 system will:
 
-- - Accept a structured inbound ticket via authenticated webhook. *[planned, not in v2.1]*
-- Validate the inbound payload against a defined input schema.
+- Accept a structured inbound ticket via authenticated webhook. *[implemented in v2.1: n8n header-auth credential]*
+- Validate the inbound payload against a defined input schema. *[v2.1: partial — validator enforces a subset of webhook_input.schema.json; full schema enforcement is v3]*
 - Extract structured facts from ticket text using an LLM.
 - Score ticket severity using a separate LLM.
 - Apply deterministic business logic for customer tier and seasonality.
-- Produce a final priority and routing state.
+- Produce a final priority and routing state. *[v2.1: final priority + minimal routing_state (human_review_mandatory / auto_accepted); full routing state is v3, ADR-004]*
 - Store triage results for human review.
-- Record structured logs for each run.
-- - Route selected cases to mandatory human review. *[planned, not in v2.1]*
+- Record structured logs for each run. *[v2.1: partial — per-run metadata in n8n execution data; durable audit persistence is v3, ADR-005 follow-on]*
+- Route selected cases to mandatory human review. *[v2.1: safety-critical only (critical severity / safety signal); full mandatory-review trigger set is v3, ADR-004]*
 
 ## Out of scope
 
@@ -103,47 +105,49 @@ Optional but supported:
 
 ## Output contract
 
-The system must produce:
+The full v2 output contract is below. v2.1 emits a subset; fields not yet emitted are tagged *[v3]* and are deferred per ADR-004 (the extractor's facts are not yet merged into the final record).
 
 - `ticket_id`
-- `intent`
-- `extracted_facts`
+- `intent` *[v3]*
+- `extracted_facts` *[v3]*
 - `severity`
 - `confidence`
 - `tier_weight`
 - `season_multiplier`
 - `final_priority`
-- `routing_state`
-- `reason_summary`
+- `routing_state` *[v2.1: minimal — human_review_mandatory / auto_accepted; full state set is v3]*
+- `reason_summary` *[v3; v2.1 emits `severity_reasoning` only]*
 - `workflow_version`
-- `prompt_version`
-- `model_version`
+- `prompt_version` *[v3]*
+- `model_version` *[v3]*
 - `processed_at`
 
 ## Routing states
 
-Allowed routing states in v2:
+Allowed routing states in v2 (full set, v3 target):
 
-- `human_review_standard`
-- `human_review_priority`
-- `human_review_mandatory`
-- `rejected_input`
-- `processing_failed`
+- `human_review_standard` *[v3]*
+- `human_review_priority` *[v3]*
+- `human_review_mandatory` *[v2.1]*
+- `rejected_input` *[v3 as an emitted routing_state; v2.1 returns HTTP 4xx on invalid input]*
+- `processing_failed` *[v3]*
 
-No v2 routing state implies autonomous downstream action.
+v2.1 emits a reduced two-value set: `human_review_mandatory` (safety-critical) and `auto_accepted` (everything else). `auto_accepted` is a v2.1-only transitional value; v3 replaces it with the graded human-review tiers above.
+
+No routing state implies autonomous downstream action.
 
 ## Mandatory human review cases
 
-The system must route to `human_review_mandatory` when any of the following applies:
+The system must route to `human_review_mandatory` when any of the following applies. v2.1 enforces only the first trigger (in code); the remaining triggers are v3 (ADR-004), since they depend on calibrated confidence and contradiction detection that do not exist yet.
 
-- Severity is `critical`.
-- Confidence is below the agreed threshold.
-- Key fields are missing or contradictory.
-- Prompt-injection or instruction-like content is detected.
-- Safety signals conflict with customer self-assessment.
-- Duplicate or ambiguous property context exists.
-- Extraction or scoring validation fails but partial data remains visible.
-- A retry/recovery path was used after processing failure.
+- Severity is `critical`, or a gas/safety signal is present. *[v2.1: enforced deterministically in the tier-multiplier code node]*
+- Confidence is below the agreed threshold. *[v3]*
+- Key fields are missing or contradictory. *[v3]*
+- Prompt-injection or instruction-like content is detected. *[v3]*
+- Safety signals conflict with customer self-assessment. *[v3]*
+- Duplicate or ambiguous property context exists. *[v3]*
+- Extraction or scoring validation fails but partial data remains visible. *[v3]*
+- A retry/recovery path was used after processing failure. *[v3]*
 
 ## Success criteria
 
@@ -151,9 +155,9 @@ v2 is successful if:
 
 - Every inbound payload is either accepted or explicitly rejected.
 - No malformed payload reaches the scoring stage.
-- All outputs conform to the output schema.
-- Every run records version metadata and processing outcome.
-- Human-review rules are applied consistently.
+- All outputs conform to the output schema. *[v2.1: scoring output is not yet schema-validated downstream; v3]*
+- Every run records version metadata and processing outcome. *[v2.1: partial — success-path metadata in n8n execution data; durable per-run audit persistence is v3]*
+- Human-review rules are applied consistently. *[v2.1: the single safety-critical rule; full rule set is v3]*
 - Evaluation is repeatable across multiple runs, not just one batch.
 - The system can explain, at a high level, why a ticket was prioritized.
 
@@ -163,8 +167,8 @@ For v2, target:
 
 - Functional correctness above v1 baseline on held-out evaluation.
 - Stable schema-valid output.
-- Basic request authentication.
-- Structured logging.
+- Basic request authentication. *[v2.1: implemented — header-auth credential]*
+- Structured logging. *[v2.1: partial — n8n execution metadata; durable audit persistence is v3]*
 - Clear deferral behavior.
 - Inspectable and explainable deterministic priority logic.
 

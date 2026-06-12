@@ -205,3 +205,145 @@ Generalizes to: Debug payloads are not the same thing as production contracts. I
 **Root cause:** I optimized before establishing measurement resolution. I treated a single run as ground truth when LLM outputs vary run-to-run even at T=0 (TH-04535 demonstrated this directly).
 **Fix:** Multi-run eval (5 runs per version) to quantify variance, and honest reframing of n=30 as a coverage eval, not a production-grade comparison. Test-set expansion to n≥100 deferred to a later iteration / Build 2 foundation.
 **Generalizes to:** Establish measurement resolution before iterating. If one test item moves the metric more than the improvement you're claiming, your eval cannot resolve the change — measurement design must precede optimization, not follow it.
+
+## 2026-05-31THH:MM — n=1 Eval Masked Both the True Baseline and the Real Effect Size
+
+**Phase:** Evaluation methodology
+**What I tried:** Originally compared scoring prompt v1 (76.7%) vs v2 (80.0%) on a single run over 30 tickets, concluding a +3.3pp improvement.
+**What broke:** The single-run comparison was misleading in two directions at once. A 5-run multi-eval showed v1's true mean was 64.0% (±2.8%), not 76.7% — the original v1 figure was an optimistic outlier. And v2's real advantage was +14pp (78.0% ±3.8%), not +3.3pp — far larger than a single run suggested. Non-overlapping ranges confirm the improvement is real, not noise.
+**Root cause:** A single run of a non-byte-deterministic model (temperature 0 does not guarantee reproducibility) can land anywhere in the model's output distribution. The original v1 run happened to land high; the v1-vs-v2 gap happened to look small. Neither was representative.
+**Fix:** 5 runs per version, mean ± standard deviation, overlap check. Reframed v1/v2 reporting around distributions, not point estimates.
+**Generalizes to:** A single eval run is not a point on a line — it is one sample from a distribution. It can mislead in either direction: inflating a weak baseline or hiding a real effect. Report mean ± stddev over multiple runs, and check whether ranges overlap before claiming (or dismissing) a difference.
+
+---
+
+# Audit deferrals — consciously NOT fixed in v2.1
+
+A spec-vs-implementation audit (2026-06-12) found a set of gaps between what the docs promise and what the workflow does. The four highest-leverage items were fixed in this pass (docs reconciliation, webhook header-auth, a minimal safety-critical routing rule, and the failure-log honesty below). The entries here record the gaps we are *deliberately* carrying into v3 rather than fixing now — each with what the audit found, why it's deferred, and what v3 should do. Logged so the deferral is a decision, not an oversight.
+
+## 2026-06-12 — Audit deferral: audit-log workflow persists nothing
+
+**Phase:** AUDIT (deferral)
+**What the audit found:** The main workflow POSTs each scored ticket to a separate "Audit Log" webhook, but that workflow only reshapes the payload and responds `{ok:true}` — it writes to no datastore. "Structured logs for each run" is, in practice, a no-op echo, and it only fires on the success path (rejected/extraction-failed runs log nothing).
+**Why deferred:** Durable audit persistence needs a real datastore and a retention policy (proposed 30 days, longer only anonymized), which is the same v3 work as moving off Google Sheets. Standing up a throwaway store now would be rework. n8n execution metadata (`customData`) gives a thin per-run trail in the meantime.
+**v3 fix:** Persist audit events to the v3 datastore (Postgres), on every path including rejection and failure, with bounded retention and access control. Make the audit write a first-class step, not a fire-and-forget HTTP call.
+
+---
+
+## 2026-06-12 — Audit deferral: extractor output discarded, output contract incomplete
+
+**Phase:** AUDIT (deferral)
+**What the audit found:** The extractor's structured facts (`intent`, `entities`, `summary_de/en`) are validated and then dropped — the tier-multiplier code node reads only the scoring output and the raw webhook, never merging extraction facts forward. As a result the final record omits SCOPE's required `intent`, `extracted_facts`, `reason_summary`, `prompt_version`, and `model_version`; only `severity_reasoning` and a hardcoded `workflow_version` survive.
+**Why deferred:** Carrying these fields through is cheap, but they only earn their keep once there's a storage and explainability surface that consumes them (the v3 datastore and review UI). Emitting them into a Google Sheet now would widen the contract without a consumer.
+**v3 fix:** Merge the validated extraction object into the final record, emit the full output contract, and capture `prompt_version` + `model_version` (pin a dated model alias) at the point of each LLM call.
+
+---
+
+## 2026-06-12 — Audit deferral: seasonality applied twice [RESOLVED]
+
+**Phase:** AUDIT (deferral)
+**What the audit found:** Season influences priority in two places at once — the scoring prompt instructs the LLM to reduce severity for out-of-season heating-only failures, and the tier-multiplier code then multiplies by a 0.7 out-of-season factor. ADR-003's rationale ("time-based deterministic rules in code, context-dependent heuristics in the LLM") says season should live only in code.
+**Why deferred:** Untangling this means re-tuning the scoring prompt and re-running the multi-run eval to confirm accuracy doesn't regress — more than a minimal-diff change, and exactly the kind of prompt iteration the eval discipline says not to do against a 30-ticket set without measurement headroom.
+**v3 fix:** Remove the seasonal-reduction instruction from the scoring prompt so severity reflects objective state only, leave the deterministic season factor solely in code, and re-baseline accuracy on the expanded (n≥100) test set.
+**Resolved (2026-06-12):** Removed the seasonal-reduction instruction from scoring_v2.txt; season is now applied once, deterministically, in the tier-multiplier code node. Pending re-baseline on the next multi-run eval.
+
+---
+
+## 2026-06-12 — Audit deferral: scoring output not schema-validated downstream
+
+**Phase:** AUDIT (deferral)
+**What the audit found:** Extraction output passes through a dedicated validator + IF gate, but scoring output flows straight into the tier-multiplier code node with no schema validation node. The asymmetry is a gap against "All outputs conform to the output schema."
+**Why deferred:** The risk is largely covered today: the scoring LLM runs in strict `json_schema` mode and the code node fail-fasts (`throw`) on an unknown severity value. The missing piece is a routed failure path, which is entangled with the extraction-failure-routing item below — best fixed together.
+**v3 fix:** Add a scoring-output validation node mirroring the extraction validator, and route its failures to the same human-review queue rather than an unhandled throw.
+
+---
+
+## 2026-06-12 — Audit deferral: extraction-failure path rejects instead of queuing for review
+
+**Phase:** AUDIT (deferral)
+**What the audit found:** When extraction validation fails, the workflow returns HTTP 422 and stops. SCOPE's mandatory-review rules say a validation failure with partial data still visible should route to `human_review_mandatory`, not be dropped — the partial extraction is discarded and nothing reaches a human.
+**Why deferred:** This depends on the v3 human-review queue and durable storage existing; without a place to park partial results for a reviewer, "queue for review" has nowhere to go. v2.1 ships only the safety-critical routing rule.
+**v3 fix:** On extraction or scoring validation failure, persist the partial record and route it to `human_review_mandatory` instead of returning a terminal 4xx.
+
+---
+
+## 2026-06-12 — Audit deferral: input validator narrower than webhook_input.schema.json
+
+**Phase:** AUDIT (deferral)
+**What the audit found:** The "Validate Webhook Input" code node checks required fields, three enums, and date-parseability, but ignores most of the declared schema: no `ticket_id` pattern/length, no `body` max-length, no `sender_email` format, no `building_type`/`occupant_flags` enums, and no `additionalProperties: false` — so unknown/garbage fields pass silently. It's a hand-rolled subset, not validation against the schema.
+**Why deferred:** The current subset blocks the malformed payloads that actually break downstream logic (missing/invalid tier, type, date). The residual gaps are breadth, not a live failure. Replacing bespoke checks with a real JSON Schema validator (e.g. an Ajv-backed node) is a small but distinct piece of work better done once.
+**v3 fix:** Validate the inbound payload against `webhook_input.schema.json` directly with a schema validator, including `additionalProperties: false`, instead of maintaining a parallel hand-coded subset that can drift (it already drifted once — see Validator Schema Drift, 2026-05-28).
+
+---
+
+## 2026-06-12 — Audit deferral: minor items (cosmetic / low-risk)
+
+**Phase:** AUDIT (deferral)
+**What the audit found:** Four low-severity items: (1) the inbound webhook path is `support-triage-v1` in the v2 workflow — stale naming; (2) the Google Sheets schema has a column id `"customer_tier "` with a trailing space — silent data-quality risk; (3) SCOPE's "Required inputs" names `created_at`/`message_body` while the schema and code use `received_at`/`body` — doc/impl naming drift; (4) `confidence` is produced (and the prompt even drops it below 0.3 on missing fields) but nothing downstream consumes it for routing.
+**Why deferred:** None of these change a triage outcome today. Renaming the live webhook path breaks any caller already pointed at it; fixing the column id requires a coordinated sheet migration; the naming drift is harmless until the deferred fields above are emitted; and `confidence`-threshold routing is explicitly a v3 capability (the threshold is still an open question in SCOPE).
+**v3 fix:** Rename the webhook path to a version-neutral route with a deprecation window for callers; correct the `customer_tier` column id during the v3 storage migration; reconcile `created_at`/`message_body` naming when the full output contract lands; and wire `confidence` into routing once it's calibrated and a threshold is agreed.
+**Resolved (2026-06-12):** Item (2) fixed — removed the trailing space from the `customer_tier` sheet column id (and displayName) so it maps from the triage record. Items (1), (3), (4) remain deferred.
+
+---
+
+## 2026-06-12 — Sheet field-name bug: Normalize `=confidence` assignment [RESOLVED]
+
+**Resolved (2026-06-12):** Surfaced once the Sheets data-path fix let the triage record reach the append node — the Normalize Final Record assignment was named `=confidence` (stray `=` prefix), so the emitted key never matched the `confidence` column. Renamed the assignment to `confidence`.
+
+---
+
+# Prompt-robustness review deferrals — 2026-06-12
+
+A prompt-and-LLM-call review (2026-06-12) surfaced robustness gaps in the extraction/scoring prompts and their schemas. Three were fixed in the same pass (clean scoring-input assembly, seasonality de-dup, injection delimiter on the extractor). The entries below are the findings we are deliberately carrying forward — each with what the review found, why it's deferred, and what v3 should do.
+
+## 2026-06-12 — Prompt review deferral: extraction schema carries no structured severity signals
+
+**Phase:** PROMPT REVIEW (deferral)
+**What the review found:** Every signal that flips severity — heating state (working/degraded/failed), safety signal (gas/smoke/burning/excess heat), vulnerable-occupant mention, affected-unit count, outdoor temperature, customer-stated urgency — has to survive lossy compression into two ≤200-char summaries, because the extraction schema has no structured fields for them. The "vulnerable occupants OVERRIDE" and "safety signals are ALWAYS critical" rules in the scoring prompt can only fire on facts that happen to land in a summary sentence.
+**Why deferred:** Adding fields (`heating_state`, `safety_signal`, `vulnerable_occupants`, `affected_unit_count`, `outdoor_temp_c`, `customer_stated_urgency`) changes the extraction contract and forces a re-baseline of the eval, plus rework of the scoring prompt to consume them. That is a deliberate schema iteration, not a minimal diff — out of scope for this pass (which only cleaned up the input *plumbing*, not the schema). The scoring-input assembly node added in this pass mitigates the worst of it by forwarding the original `ticket_excerpt` and the structured webhook fields (`occupant_flags`, `customer_type`, etc.) to the scorer.
+**v3 fix:** Extend the extraction schema with explicit structured severity signals so the authority-hierarchy and override rules become near-mechanical rather than dependent on summary prose, and have scoring consume the structured signals directly.
+
+---
+
+## 2026-06-12 — Prompt review deferral: summary over-length 422s the whole ticket; no scoring-output validator
+
+**Phase:** PROMPT REVIEW (deferral)
+**What the review found:** OpenAI strict structured outputs does not constrain `maxLength` (it ignores string-length, numeric-range, `pattern`, and `format`), so the 200-char summary cap is enforced only post-hoc by the extraction validator — which then rejects the *entire* ticket (HTTP 422) for a 201-char summary. Symmetrically, scoring output has no validator node at all, so `severity_reasoning` length and `confidence` range are checked nowhere.
+**Why deferred:** Both touch the failure-routing design: a too-long summary should degrade gracefully (truncate / soft-warn) rather than reject, and a scoring validator only earns its keep once its failures route somewhere (the v3 human-review queue) instead of throwing. Wiring graceful degradation and a scoring validator into the success/failure branches is more than a minimal diff and overlaps the deferred extraction-failure-routing work.
+**v3 fix:** Make the summary length a soft constraint (truncate to 200 and flag, don't 422), and add a scoring-output validation node mirroring the extraction validator, routing its failures to human review rather than an unhandled throw.
+
+---
+
+## 2026-06-12 — Prompt review deferral: `language` enum cannot emit "unknown"
+
+**Phase:** PROMPT REVIEW (deferral)
+**What the review found:** The extraction prompt instructs the model to use `"unknown"` for empty/unintelligible tickets, but the extraction schema's `language` enum is `["de","en","other"]` — strict decoding forbids `"unknown"`, so the instruction is dead. The webhook input schema's `language` enum *does* include `unknown`, so the two layers disagree.
+**Why deferred:** It is a one-line enum change, but it alters the extraction output contract and should land together with the other schema work (structured severity signals above) and a re-baseline, rather than as an isolated tweak that shifts outputs mid-eval.
+**v3 fix:** Add `"unknown"` to the extraction `language` enum (aligning it with the webhook schema), or change the empty-ticket instruction to use `"other"`. Pick one and make the prompt and schema agree.
+
+---
+
+## 2026-06-12 — Prompt review deferral: per-intent few-shot examples promised but still absent
+
+**Phase:** PROMPT REVIEW (deferral)
+**What the review found:** The 2026-05-04 BUILD entry ("Extraction misclassified appointment scheduling as 'other'") logged the fix as "Defer to v2. Add few-shot examples to system prompt, one canonical example per intent." The extraction prompt is byte-identical across v1 and v2 (prompts/README confirms it) — the promised per-intent examples were never added, so intent still collapses to `other` under ambiguity.
+**Why deferred:** Intent accuracy is not measured by the severity eval, so adding examples now would change the extraction prompt without a metric to confirm the gain or guard against regression. It belongs with a dedicated intent-classification eval, which does not exist yet.
+**v3 fix:** Add one canonical few-shot example per intent enum value to the extraction prompt, and stand up an intent-accuracy eval so the change is measurable rather than asserted.
+
+---
+
+## 2026-06-12 — Prompt review deferral: `confidence` is computed but never consumed
+
+**Phase:** PROMPT REVIEW (deferral)
+**What the review found:** The scoring prompt elaborately defines `confidence` (drop below 0.3 on missing key fields, below 0.5 when ambiguous) and the schema carries it, but nothing downstream reads it — no node routes on it, and the safety-critical routing rule ignores it. The signal the prompt works to produce is inert. (Also tracked in the audit minor-items entry; restated here from the prompt's perspective.)
+**Why deferred:** Confidence-threshold routing is an explicit v3 capability and the threshold is still an open question in SCOPE; the prompt's confidence values are also not calibrated, so wiring them into routing now would route on an unvalidated number.
+**v3 fix:** Calibrate confidence against ground truth, agree a threshold, then route low-confidence tickets to mandatory human review — or, if it stays uncalibrated, stop claiming it gates review.
+
+---
+
+## 2026-06-12 — Prompt review deferral: undated `gpt-4.1-mini` model alias
+
+**Phase:** PROMPT REVIEW (deferral)
+**What the review found:** Both LLM nodes pin the model as the undated alias `gpt-4.1-mini`. A silent provider-side update to the alias can shift behavior under a frozen prompt, which directly undermines prompt-robustness work and eval reproducibility (the README already notes the v1 76.7%→64.0% level shift may partly reflect this).
+**Why deferred:** Pinning a dated snapshot is a config change best made alongside the eval-set expansion (n≥100) so the new baseline is measured against a fixed model, not changed piecemeal between runs.
+**v3 fix:** Pin a dated model version (`gpt-4.1-mini-YYYY-MM-DD`) in both LLM nodes and record `model_version` in the output contract so every run is attributable to a specific model snapshot.

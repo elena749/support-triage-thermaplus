@@ -37,7 +37,7 @@ Extraction and judgment are distinct tasks. Separation improves debuggability an
 ---
 
 ## ADR-003: Deterministic business multipliers stay in code
-Status: Implementation pending v3
+Status: Implemented (v2.1)
 Date: 2026-05-28
 
 ### Decision
@@ -54,7 +54,7 @@ Static business rules should be auditable, explainable, and easy to test.
 ---
 
 ## ADR-004: v2 uses mandatory human review states
-Status: Implementation pending v3
+Status: Implemented in v2.1 in minimal binary form (safety-critical → human_review_mandatory, else auto_accepted); graded review tiers deferred to v3
 Date: 2026-05-28
 
 ### Decision
